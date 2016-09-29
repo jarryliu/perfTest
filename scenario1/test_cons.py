@@ -26,8 +26,8 @@ if (args.buildonly) :
     os.system("go build Producer.go")
     exit(0)
 
-if args.type == "fanout" || args.type == "all":
-    if args.ctype == "tcp" || args.ctype == "all":
+if args.type == "fanout" or args.type == "all":
+    if args.ctype == "tcp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Consumer -c tcp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -pn 1 -n="+str(2**i)+ \
@@ -35,7 +35,7 @@ if args.type == "fanout" || args.type == "all":
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Consumer -t 0 > tcp_fanout_cons.log" )
             time.sleep(2)
-    if args.ctype == "udp" || args.ctype == "all":
+    if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Consumer -c udp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -pn 1 -n="+str(2**i)+ \
@@ -44,8 +44,8 @@ if args.type == "fanout" || args.type == "all":
             os.system("python ../scripts/measure.py -n Consumer -t 0 > udp_fanout_cons.log")
             time.sleep(2)
 print("\n\n")
-if args.type == "fanin" || args.type == "all":
-    if args.ctype == "tcp" || args.ctype == "all":
+if args.type == "fanin" or args.type == "all":
+    if args.ctype == "tcp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest TCP for Fanin model with "+ str(2**i) +" concurrent producers and 1 consumer")
             os.system("./Consumer -c tcp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -n=1 -pn="+str(2**i)+ \
@@ -53,7 +53,7 @@ if args.type == "fanin" || args.type == "all":
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Consumer -t 0 > tcp_fanin_cons.log")
             time.sleep(2)
-    if args.ctype == "udp" || args.ctype == "all":
+    if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanin model with "+ str(2**i) +" concurrent producers and 1 consumer")
             os.system("./Consumer -c udp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl=5000 -n=1 -pn="+str(2**i)+ \

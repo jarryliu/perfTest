@@ -10,7 +10,7 @@ import "bufio"
 import "sync"
 import "math/rand"
 //import "strconv"
-import "github.com/jbenet/go-udtwrapper/udt"
+//import "github.com/jbenet/go-udtwrapper/udt"
 
 const (
 	BUFSIZE     = 2048
@@ -106,26 +106,27 @@ func main() {
 			}
 			//print("get connection")
 			wg.Add(1)
-			go handleUDP(ln, chans[i-1])
+			//go handleUDP(ln, chans[i-1])
+			go handleUDP(ln, addr, chans[i-1])
 		}
 		print("connection done\n")
-	}else if ctype == "udt" {
-		serverAddr,err := udt.ResolveUDTAddr("udt",":"+port)
-	  CheckErrorExit("Resolve UDT Error", err)
-		ln, err := udt.ListenUDT(ctype, serverAddr)
-		CheckErrorExit("Listen Error", err)
-		defer ln.Close()
-		for i:= 1; i <= cnum; i++  {
-			conn, err := ln.Accept()
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			//fmt.Println("Accept from a client ", i)
-			wg.Add(1)
-			go handleUDT(i, conn, chans[i-1])
-		}
-		defer ln.Close()
+	// }else if ctype == "udt" {
+	// 	serverAddr,err := udt.ResolveUDTAddr("udt",":"+port)
+	//   CheckErrorExit("Resolve UDT Error", err)
+	// 	ln, err := udt.ListenUDT(ctype, serverAddr)
+	// 	CheckErrorExit("Listen Error", err)
+	// 	defer ln.Close()
+	// 	for i:= 1; i <= cnum; i++  {
+	// 		conn, err := ln.Accept()
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 			continue
+	// 		}
+	// 		//fmt.Println("Accept from a client ", i)
+	// 		wg.Add(1)
+	// 		go handleUDT(i, conn, chans[i-1])
+	// 	}
+	// 	defer ln.Close()
 	}
 	wg.Wait()
 	for j:= 1; j <= pnum; j ++{
@@ -164,13 +165,14 @@ func handleTCP(id int, c net.Conn, chanItem <-chan int64) {
 	}
 }
 
-func handleUDP(addr *net.UDPAddr,  chanItem <-chan int64){
+//func handleUDP(addr *net.UDPAddr,  chanItem <-chan int64){
+func handleUDP(c *net.UDPConn, addr *net.UDPAddr, chanItem <-chan int64){
 
-	localAddr, err := net.ResolveUDPAddr("udp", ":0")
-  CheckErrorExit("Resolve UDP ERROR", err)
-	time.Sleep(time.Millisecond*300)
-  c, err := net.DialUDP("udp", localAddr, addr)
-  CheckErrorExit("UDP Dial Error", err)
+	// localAddr, err := net.ResolveUDPAddr("udp", ":0")
+  // CheckErrorExit("Resolve UDP ERROR", err)
+	// time.Sleep(time.Millisecond*300)
+  // c, err := net.DialUDP("udp", localAddr, addr)
+  // CheckErrorExit("UDP Dial Error", err)
 	wg.Done()
 	sendBuf := make([]byte, msglen)
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
@@ -181,8 +183,8 @@ func handleUDP(addr *net.UDPAddr,  chanItem <-chan int64){
 		}
 		binary.PutVarint(sendBuf, int64(i))
 		binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
-		n, err := c.Write(sendBuf)
-		//n, err := c.WriteToUDP(sendBuf, addr)
+		//n, err := c.Write(sendBuf)
+		n, err := c.WriteToUDP(sendBuf, addr)
 		if err != nil || n != msglen {
       fmt.Println("Write Error:", err)
       c.Close()
@@ -192,48 +194,48 @@ func handleUDP(addr *net.UDPAddr,  chanItem <-chan int64){
 }
 
 
-func handleUDT(id int, c net.Conn, chanItem <-chan int64) {
-	sendBuf := make([]byte, msglen)
-	for i := 0; i< stopNum*pnum; i ++ {
-		//receive message
-		// _, err := c.Read(buf)
-		// if err != nil {
-		// 	fmt.Println("Read Error:", err)
-		// 	c.Close()
-		// 	break
-		// }
-		// if recordOrNot && stopNum-i <= recordlen {
-		// 	currentTime := time.Now().UnixNano()
-		// 	sentTime, _ := binary.Varint(buf[8:])
-		// 	latency := currentTime - sentTime
-		// 	// latency in microseconds
-		// 	oneWayLatencies[recordlen-(stopNum-i)] = int(latency)
-		// }
-		//pktNum, _ := binary.Varint(buf)
-		_, more := <- chanItem
-		if !more {
-			break
-		}
-		binary.PutVarint(sendBuf, int64(i))
-		binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
-		n, err := c.Write(sendBuf)
-		if err != nil || n != msglen {
-      fmt.Println("Write Error:", err)
-      c.Close()
-      break
-    }
-		//if interval != 0 {
-		//	time.Sleep(time.Millisecond * time.Duration(interval))
-		//}
-	}
-	//ioutil.WriteFile("client_server",oneWayLatencies,0777)
-	// if recordOrNot {
-	// 	if err := writeLines(oneWayLatencies, sfile+strconv.Itoa(id)+".log"); err != nil {
-	// 		fmt.Println("WRITE FILE ERROR")
-	// 	}
-	// }
-	//fmt.Println("End Connection ", id, " ", i, " packets sent.")
-}
+// func handleUDT(id int, c net.Conn, chanItem <-chan int64) {
+// 	sendBuf := make([]byte, msglen)
+// 	for i := 0; i< stopNum*pnum; i ++ {
+// 		//receive message
+// 		// _, err := c.Read(buf)
+// 		// if err != nil {
+// 		// 	fmt.Println("Read Error:", err)
+// 		// 	c.Close()
+// 		// 	break
+// 		// }
+// 		// if recordOrNot && stopNum-i <= recordlen {
+// 		// 	currentTime := time.Now().UnixNano()
+// 		// 	sentTime, _ := binary.Varint(buf[8:])
+// 		// 	latency := currentTime - sentTime
+// 		// 	// latency in microseconds
+// 		// 	oneWayLatencies[recordlen-(stopNum-i)] = int(latency)
+// 		// }
+// 		//pktNum, _ := binary.Varint(buf)
+// 		_, more := <- chanItem
+// 		if !more {
+// 			break
+// 		}
+// 		binary.PutVarint(sendBuf, int64(i))
+// 		binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
+// 		n, err := c.Write(sendBuf)
+// 		if err != nil || n != msglen {
+//       fmt.Println("Write Error:", err)
+//       c.Close()
+//       break
+//     }
+// 		//if interval != 0 {
+// 		//	time.Sleep(time.Millisecond * time.Duration(interval))
+// 		//}
+// 	}
+// 	//ioutil.WriteFile("client_server",oneWayLatencies,0777)
+// 	// if recordOrNot {
+// 	// 	if err := writeLines(oneWayLatencies, sfile+strconv.Itoa(id)+".log"); err != nil {
+// 	// 		fmt.Println("WRITE FILE ERROR")
+// 	// 	}
+// 	// }
+// 	//fmt.Println("End Connection ", id, " ", i, " packets sent.")
+// }
 
 func writeLines(lines []int, path string) error {
 	file, err := os.Create(path)

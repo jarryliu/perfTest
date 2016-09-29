@@ -24,28 +24,28 @@ if (args.buildonly) :
     os.system("go build Producer.go")
     exit(0)
 
-if args.type == "fanout" || args.type == "all":
-    if args.ctype == "tcp" || args.ctype == "all":
+if args.type == "fanout" or args.type == "all":
+    if args.ctype == "tcp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest TCP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Producer -c tcp -l="+str(args.length)+" -s="+ str(args.stopnum) +" -pn 1 -n="+str(2**i) + " &")
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Producer -t 0 > log/tcp_fanout_prod.log")
-    if args.ctype == "udp" || args.ctype == "all":
+    if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest for " +args.type +" model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Producer -c udp -l="+str(args.length)+" -s="+ str(args.stopnum) +" -pn 1 -n="+str(2**i) + " &")
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Producer -t 0 > log/udp_fanout_prod.log")
 print("\n\n")
-if args.type == "fanout" || args.type == "all":
-    if args.ctype == "tcp" || args.ctype == "all":
+if args.type == "fanout" or args.type == "all":
+    if args.ctype == "tcp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest TCP for Fanin model with 1 consumers and "+ str(2**i) +" producer")
             os.system("./Producer -c tcp -l="+str(args.length)+" -s=" + str(args.stopnum) + " -n=1 -pn="+str(2**i)+" &")
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Producer -t 0 > log/tcp_fanin_prod.log")
-    if args.ctype == "udp" || args.ctype == "all":
+    if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanin model with 1 consumers and "+ str(2**i) +" producer")
             os.system("./Producer -c udp -l="+str(args.length)+" -s=" + str(args.stopnum) + " -n=1 -pn="+str(2**i)+" &")

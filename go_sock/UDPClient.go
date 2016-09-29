@@ -49,7 +49,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   serverAddr, err := net.ResolveUDPAddr("udp", ip+":"+port)
   CheckErrorExit("Resolve UDP ERROR", err)
 
-  conn, err = net.DialUDP("udp", localAddr, serverAddr)
+  conn, err := net.DialUDP("udp", localAddr, serverAddr)
   CheckErrorExit("UDP Dial Error", err)
 
   //buffer := make([]byte, msglen)

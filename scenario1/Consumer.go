@@ -11,7 +11,7 @@ import (
   //"math/rand"
   "sync"
   "strconv"
-  "github.com/jbenet/go-udtwrapper/udt"
+//  "github.com/jbenet/go-udtwrapper/udt"
 )
 
 
@@ -121,87 +121,86 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 
 
 
-func handleUDT(wg *sync.WaitGroup, id int, recordOrNot bool) {
-  //time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
-  var conn net.Conn
-  var err error
-    // Lets prepare a address at any address at port 10001
-  localAddr, err := udt.ResolveUDTAddr("udt", ":0")
-  CheckErrorExit("Resolve UDT ERROR", err)
-
-  serverAddr, err := udt.ResolveUDTAddr("udt", ip+":"+port)
-  CheckErrorExit("Resolve UDT ERROR", err)
-
-  d := udt.Dialer{LocalAddr: localAddr}
-  conn, err = d.DialUDT("udt", serverAddr)
-  CheckErrorExit("UDT Dial Error", err)
-  defer conn.Close()
-
-  //var roundTripLatencies []int
-  var oneWayLatencies []int
-  if recordOrNot {
-    //roundTripLatencies = make([]int, recordlen)
-    oneWayLatencies = make([]int, recordlen)
-  }
-
-  //buffer := make([]byte, msglen)
-  bufferRcv := make([]byte, msglen)
-  i:= 0
-  recordNum := 0
-  recordStart := stopnum*pnum/4
-  recordStop := stopnum*pnum*3/4
-  gap := stopnum*pnum/recordlen
-
-  for i = 0; i < stopnum*pnum; i++ {
-    //write to the connection
-    //currentTime1 := time.Now().UnixNano()
-    //binary.PutVarint(buffer, int64(i))
-    //binary.PutVarint(buffer[8:], currentTime1)
-    //conn.Write(buffer)
-    n, err := conn.Read(bufferRcv)
-    currentTime2 := time.Now().UnixNano()
-    if n!=msglen {
-      fmt.Println("expecting ", msglen, " Bytes and recieved ", n, " Bytes")
-    }
-    if err != nil  {
-      fmt.Println("Read Error:", err)
-      conn.Close()
-      break
-    }
-    pktNum, _ := binary.Varint(bufferRcv)
-    if pktNum != int64(i) {
-      fmt.Println("Expecting ", i, " recieved ",pktNum)
-    }
-    if pktNum < int64(i) {
-      i --
-      continue
-    }
-    if recordOrNot && (i >= recordStart) && i <= recordStop && recordNum < recordlen && (gap == 0 || (i-recordStart)%gap == 0){
-      serverSentTime, _ := binary.Varint(bufferRcv[8:])
-      //append one way latency
-      oneWayLatency := currentTime2 - serverSentTime
-      oneWayLatencies[recordNum] = int(oneWayLatency)
-      recordNum ++
-      //append round trip latency
-      //roundTripLatency := currentTime2 - currentTime1
-      //roundTripLatencies[recordlen - stopnum +i] = int(roundTripLatency)
-    }
-    //fmt.Println("sleep at ", i)
-    //time.Sleep(time.Millisecond * time.Duration(interval))
-  }
-  //write output to files
-  if recordOrNot {
-    writeLines(oneWayLatencies, recordNum, oneFile+"_"+strconv.Itoa(id))
-    //writeLines(roundTripLatencies, roundFile)
-  }
-  //fmt.Println("End Client", id, " ", stopnum-i , " packets lost")
-  wg.Done()
-}
+// func handleUDT(wg *sync.WaitGroup, id int, recordOrNot bool) {
+//   //time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
+//   var conn net.Conn
+//   var err error
+//     // Lets prepare a address at any address at port 10001
+//   localAddr, err := udt.ResolveUDTAddr("udt", ":0")
+//   CheckErrorExit("Resolve UDT ERROR", err)
+//
+//   serverAddr, err := udt.ResolveUDTAddr("udt", ip+":"+port)
+//   CheckErrorExit("Resolve UDT ERROR", err)
+//
+//   d := udt.Dialer{LocalAddr: localAddr}
+//   conn, err = d.DialUDT("udt", serverAddr)
+//   CheckErrorExit("UDT Dial Error", err)
+//   defer conn.Close()
+//
+//   //var roundTripLatencies []int
+//   var oneWayLatencies []int
+//   if recordOrNot {
+//     //roundTripLatencies = make([]int, recordlen)
+//     oneWayLatencies = make([]int, recordlen)
+//   }
+//
+//   //buffer := make([]byte, msglen)
+//   bufferRcv := make([]byte, msglen)
+//   i:= 0
+//   recordNum := 0
+//   recordStart := stopnum*pnum/4
+//   recordStop := stopnum*pnum*3/4
+//   gap := stopnum*pnum/recordlen
+//
+//   for i = 0; i < stopnum*pnum; i++ {
+//     //write to the connection
+//     //currentTime1 := time.Now().UnixNano()
+//     //binary.PutVarint(buffer, int64(i))
+//     //binary.PutVarint(buffer[8:], currentTime1)
+//     //conn.Write(buffer)
+//     n, err := conn.Read(bufferRcv)
+//     currentTime2 := time.Now().UnixNano()
+//     if n!=msglen {
+//       fmt.Println("expecting ", msglen, " Bytes and recieved ", n, " Bytes")
+//     }
+//     if err != nil  {
+//       fmt.Println("Read Error:", err)
+//       conn.Close()
+//       break
+//     }
+//     pktNum, _ := binary.Varint(bufferRcv)
+//     if pktNum != int64(i) {
+//       fmt.Println("Expecting ", i, " recieved ",pktNum)
+//     }
+//     if pktNum < int64(i) {
+//       i --
+//       continue
+//     }
+//     if recordOrNot && (i >= recordStart) && i <= recordStop && recordNum < recordlen && (gap == 0 || (i-recordStart)%gap == 0){
+//       serverSentTime, _ := binary.Varint(bufferRcv[8:])
+//       //append one way latency
+//       oneWayLatency := currentTime2 - serverSentTime
+//       oneWayLatencies[recordNum] = int(oneWayLatency)
+//       recordNum ++
+//       //append round trip latency
+//       //roundTripLatency := currentTime2 - currentTime1
+//       //roundTripLatencies[recordlen - stopnum +i] = int(roundTripLatency)
+//     }
+//     //fmt.Println("sleep at ", i)
+//     //time.Sleep(time.Millisecond * time.Duration(interval))
+//   }
+//   //write output to files
+//   if recordOrNot {
+//     writeLines(oneWayLatencies, recordNum, oneFile+"_"+strconv.Itoa(id))
+//     //writeLines(roundTripLatencies, roundFile)
+//   }
+//   //fmt.Println("End Client", id, " ", stopnum-i , " packets lost")
+//   wg.Done()
+// }
 
 
 func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   //time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
-  var conn net.Conn
   var err error
     /* Lets prepare a address at any address at port 10001*/
   localAddr, err := net.ResolveUDPAddr("udp", ":0")
@@ -210,7 +209,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   serverAddr, err := net.ResolveUDPAddr("udp", ip+":"+port)
   CheckErrorExit("Resolve UDP ERROR", err)
 
-  conn, err = net.DialUDP("udp", localAddr, serverAddr)
+  conn, err := net.DialUDP("udp", localAddr, serverAddr)
   CheckErrorExit("UDP Dial Error", err)
 
   conn.SetWriteBuffer(4*1024*1024) // set write buffer side to 10M
@@ -338,8 +337,8 @@ func main() {
     }else if ctype == "udp" {
       go handleUDP(&wg, i, recordOrNot)
       time.Sleep(time.Microsecond * 5)
-    }else if ctype == "udt" {
-      go handleUDT(&wg, i, recordOrNot)
+    // }else if ctype == "udt" {
+    //   go handleUDT(&wg, i, recordOrNot)
     }
   }
   wg.Wait()
