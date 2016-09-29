@@ -53,9 +53,6 @@ func handleProd(){
 			chans[j] <- int64(i)
 			//print(j)
 		}
-		//print(i)
-		//print("\n")
-		//print("write channel\n")
 		if interval > 0 {
 			time.Sleep(time.Microsecond * time.Duration(interval))
 		}
@@ -150,22 +147,6 @@ func handleTCP(id int, c net.Conn, chanItem <-chan int64) {
 	sendBuf := make([]byte, msglen)
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	for i := 0; i< stopNum*pnum; i ++{
-		//receive message
-		//_, err := c.Read(buf)
-		//if err != nil {
-		//	fmt.Println("Read Error:", err)
-		//	c.Close()
-		//	break
-		//}
-		//if recordOrNot && stopNum-i <= recordlen {
-		//	currentTime := time.Now().UnixNano()
-		//	sentTime, _ := binary.Varint(buf[8:])
-		//	latency := currentTime - sentTime
-		//	// latency in microseconds
-		//	oneWayLatencies[recordlen-(stopNum-i)] = int(latency)
-		//}
-		//pktNum, _ := binary.Varint(buf)
-		//print("wait for channel")
 		_, more := <- chanItem
 		if !more {
 			break
@@ -180,18 +161,7 @@ func handleTCP(id int, c net.Conn, chanItem <-chan int64) {
       c.Close()
       break
     }
-		//i ++
-		//if interval != 0 {
-		//	time.Sleep(time.Millisecond * time.Duration(interval))
-		//}
 	}
-	//ioutil.WriteFile("client_server",oneWayLatencies,0777)
-	// if recordOrNot {
-	// 	if err := writeLines(oneWayLatencies, sfile+strconv.Itoa(id)+".log"); err != nil {
-	// 		fmt.Println("WRITE FILE ERROR")
-	// 	}
-	// }
-	//fmt.Println("End Connection ", id, " ", i, " packets sent.")
 }
 
 func handleUDP(addr *net.UDPAddr,  chanItem <-chan int64){
@@ -218,9 +188,6 @@ func handleUDP(addr *net.UDPAddr,  chanItem <-chan int64){
       c.Close()
       break
     }
-		//if interval != 0 {
-		//	time.Sleep(time.Millisecond * time.Duration(interval))
-		//}
 	}
 }
 

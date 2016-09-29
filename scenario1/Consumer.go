@@ -61,7 +61,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   recordNum := 0
   recordStart := stopnum*pnum/4
   recordStop := stopnum*pnum*3/4
-  gap := stopnum*pnum/recordlen
+  gap := stopnum*pnum/recordlen/2
   //beginTime := time.Now().UnixNano()
   for i = 0; i < stopnum*pnum; i++ {
     //write to the connection
@@ -236,8 +236,8 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   recordNum := 0
   recordStart := stopnum*pnum/4
   recordStop := stopnum*pnum*3/4
-  gap := stopnum*pnum/recordlen
-
+  gap := stopnum*pnum/recordlen/2
+  conn.SetReadDeadline(time.Now().Add(time.Second*1))
   for {
     //write to the connection
     //currentTime1 := time.Now().UnixNano()
@@ -247,7 +247,6 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 
     //ln.SetReadDeadline(time.Now().Add(time.Second*1))
     //n,_,err := ln.ReadFromUDP(bufferRcv)
-    conn.SetReadDeadline(time.Now().Add(time.Second*1))
     n,_,err := ln.ReadFromUDP(bufferRcv)
     currentTime2 := time.Now().UnixNano()
     if err != nil  {
