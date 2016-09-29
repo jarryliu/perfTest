@@ -33,7 +33,7 @@ if args.type == "fanout" or args.type == "all":
             os.system("python ../scripts/measure.py -n Producer -t 0 > log/tcp_fanout_prod.log")
     if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
-            print("\nTest for " +args.type +" model with "+ str(2**i) +" concurrent consumers and 1 producer")
+            print("\nTest UDP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Producer -c udp -l="+str(args.length)+" -s="+ str(args.stopnum) +" -pn 1 -n="+str(2**i) + " &")
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Producer -t 0 > log/udp_fanout_prod.log")

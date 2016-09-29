@@ -29,19 +29,19 @@ if (args.buildonly) :
 if args.type == "fanout" or args.type == "all":
     if args.ctype == "tcp" or args.ctype == "all":
         for i in [6,7,8,9]:
-            print("\nTest UDP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
+            print("\nTest TCP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Consumer -c tcp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -pn 1 -n="+str(2**i)+ \
-                " -of=tcp_fanout_oneway_"+str(2**i) + " -rf=tcp_fanout_roundtrip_" + str(2**i)+" &")
+                " -of=log/tcp_fanout_oneway_"+str(2**i) + " -rf=log/tcp_fanout_roundtrip_" + str(2**i)+" &")
             time.sleep(1)
-            os.system("python ../scripts/measure.py -n Consumer -t 0 > tcp_fanout_cons.log" )
+            os.system("python ../scripts/measure.py -n Consumer -t 0 > log/tcp_fanout_cons.log" )
             time.sleep(2)
     if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
             os.system("./Consumer -c udp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -pn 1 -n="+str(2**i)+ \
-                " -of=udp_fanout_oneway_"+str(2**i) + " -rf=udp_fanout_roundtrip_" + str(2**i)+" &")
+                " -of=log/udp_fanout_oneway_"+str(2**i) + " -rf=log/udp_fanout_roundtrip_" + str(2**i)+" &")
             time.sleep(1)
-            os.system("python ../scripts/measure.py -n Consumer -t 0 > udp_fanout_cons.log")
+            os.system("python ../scripts/measure.py -n Consumer -t 0 > log/udp_fanout_cons.log")
             time.sleep(2)
 print("\n\n")
 if args.type == "fanin" or args.type == "all":
@@ -49,15 +49,15 @@ if args.type == "fanin" or args.type == "all":
         for i in [6,7,8,9]:
             print("\nTest TCP for Fanin model with "+ str(2**i) +" concurrent producers and 1 consumer")
             os.system("./Consumer -c tcp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -n=1 -pn="+str(2**i)+ \
-                " -of=tcp_fanin_oneway_"+str(2**i) + " -rf=tcp_fanin_roundtrip_" + str(2**i)+" &")
+                " -of=log/tcp_fanin_oneway_"+str(2**i) + " -rf=log/tcp_fanin_roundtrip_" + str(2**i)+" &")
             time.sleep(1)
-            os.system("python ../scripts/measure.py -n Consumer -t 0 > tcp_fanin_cons.log")
+            os.system("python ../scripts/measure.py -n Consumer -t 0 > log/tcp_fanin_cons.log")
             time.sleep(2)
     if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanin model with "+ str(2**i) +" concurrent producers and 1 consumer")
             os.system("./Consumer -c udp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl=5000 -n=1 -pn="+str(2**i)+ \
-                " -of=udp_fanin_oneway_"+str(2**i) + " -rf=udp_fanin_roundtrip_" + str(2**i)+" &")
+                " -of=log/udp_fanin_oneway_"+str(2**i) + " -rf=log/udp_fanin_roundtrip_" + str(2**i)+" &")
             time.sleep(1)
-            os.system("python ../scripts/measure.py -n Consumer -t 0 > udp_fanin_cons.log")
+            os.system("python ../scripts/measure.py -n Consumer -t 0 > log/udp_fanin_cons.log")
             time.sleep(2)
