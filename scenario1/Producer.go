@@ -191,6 +191,11 @@ func handleUDP(c *net.UDPConn, addr *net.UDPAddr, chanItem <-chan int64){
       break
     }
 	}
+	time.Sleep(time.Millisecond*100)
+	binary.PutVarint(sendBuf, int64(-1))
+	binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
+	//n, err := c.Write(sendBuf)
+	n, err := c.WriteToUDP(sendBuf, addr)
 }
 
 

@@ -236,7 +236,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   recordStart := stopnum*pnum/4
   recordStop := stopnum*pnum*3/4
   gap := stopnum*pnum/recordlen/2
-  conn.SetReadDeadline(time.Now().Add(time.Second*1))
+  //conn.SetReadDeadline(time.Now().Add(time.Second*1))
   for {
     //write to the connection
     //currentTime1 := time.Now().UnixNano()
@@ -257,7 +257,10 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
     if n!=msglen {
       fmt.Println("expecting ", msglen, " Bytes and recieved ", n, " Bytes")
     }
-    //print("get packet")
+    seqNum,_ := binary.Varint(bufferRcv)
+    if seqNum == int(-1):{
+      break
+    }
     if recordOrNot && (i >= recordStart) && i <= recordStop && recordNum < recordlen && (gap == 0 || (i-recordStart)%gap == 0){
       serverSentTime, _ := binary.Varint(bufferRcv[8:])
       //append one way latency
