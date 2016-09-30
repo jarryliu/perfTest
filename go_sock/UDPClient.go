@@ -39,8 +39,6 @@ func CheckErrorExit(errString string, err error) {
 	}
 }
 
-oneWayLatencies := make([]int, 10000)
-
 func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	var err error
@@ -60,15 +58,17 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	binary.PutVarint(buff, 0)
 	//binary.PutVarint(buff[8:], )
 	conn.Write(buff)
-	lostPacket := make([]int, 20000)
+	//lostPacket := make([]int64, 20000)
 	startTime := time.Now().UnixNano()
-	lostPkt := 0
+	//lostPkt := 0
 	rcvPkt := 0
 	i := 0
 
 	conn.SetReadBuffer(4 * 1024 * 1024) // setup the read buffer as 10MB.
 	conn.SetWriteBuffer(4 * 1024 * 1024)
-  gap := stopNum/10000
+	gap := stopNum / 10000
+	oneWayLatencies := make([]int64, 10000)
+
 	for i = 0; i < stopNum; i++ {
 		//conn.SetReadDeadline(time.Now().Add(time.Second*1))
 		n, err := conn.Read(bufferRcv)
@@ -81,11 +81,11 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 			conn.Close()
 			break
 		}
-		sentNum, _ := binary.Varint(bufferRcv)
+		//sentNum, _ := binary.Varint(bufferRcv)
 		serverSentTime, _ := binary.Varint(bufferRcv[8:])
-    if rcvPkt % gap == 0 {
-		  oneWayLatencies[rcvPkt] = currentTime - serverSentTime
-    }
+		if rcvPkt%gap == 0 {
+			oneWayLatencies[rcvPkt] = currentTime - serverSentTime
+		}
 		// if int(sentNum) > i && lostPkt+2 < 20000{
 		//   lostPacket[lostPkt] = i
 		//   lostPacket[lostPkt+1] = int(sentNum)-1
@@ -106,7 +106,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	wg.Done()
 }
 
-func writeLines(lines []int, path string) error {
+func writeLines(lines []int64, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err

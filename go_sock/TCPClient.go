@@ -40,7 +40,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	CheckErrorExit("TCP Connection Error", err)
 	gap := stopNum / 10000
 	buf := make([]byte, msglen)
-	oneWayLatencies := make([]int, 10000)
+	oneWayLatencies := make([]int64, 10000)
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	startTime := time.Now().UnixNano()
 	i := 0
@@ -64,8 +64,8 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 		if n == 0 {
 			fmt.Println("recieve 0")
 		}
-		sentNum, _ := binary.Varint(buff)
-		serverSentTime, _ := binary.Varint(buff[8:])
+		//sentNum, _ := binary.Varint(buf)
+		serverSentTime, _ := binary.Varint(buf[8:])
 		if i%gap == 0 {
 			oneWayLatencies[i] = currentTime - serverSentTime
 		}
@@ -76,7 +76,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	wg.Done()
 }
 
-func writeLines(lines []int, path string) error {
+func writeLines(lines []int64, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
