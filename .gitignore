@@ -7,4 +7,6 @@ scenario1/Producer
 
 40core_log
 
+log
+
 c_sock/tcpserver
