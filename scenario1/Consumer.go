@@ -228,8 +228,8 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
   binary.PutVarint(buff, 0)
   //binary.PutVarint(buff[8:], )
   conn.Write(buff)
-  conn.Close()
-  ln, _ := net.ListenUDP("udp", localAddr)
+  //conn.Close()
+  //ln, _ := net.ListenUDP("udp", localAddr)
 
   i := 0
   recordNum := 0
@@ -246,7 +246,8 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 
     //ln.SetReadDeadline(time.Now().Add(time.Second*1))
     //n,_,err := ln.ReadFromUDP(bufferRcv)
-    n,_,err := ln.ReadFromUDP(bufferRcv)
+    //n,_,err := ln.ReadFromUDP(bufferRcv)
+    n, err:= conn.Read(bufferRcv)
     currentTime2 := time.Now().UnixNano()
     if err != nil  {
       fmt.Println("Read Error:", err)
