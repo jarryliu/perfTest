@@ -75,6 +75,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	endTime := time.Now().UnixNano()
 	fmt.Println(endTime-startTime, " ns passed")
 	fmt.Println(i, "packets received")
+  writeLines(oneWayLatencies, "latency.log"))
 	wg.Done()
 }
 
