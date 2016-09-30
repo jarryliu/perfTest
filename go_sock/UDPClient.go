@@ -69,6 +69,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	gap := stopNum / 10000
 	oneWayLatencies := make([]int64, 10000)
 
+	recNum := 0
 	for i = 0; i < stopNum; i++ {
 		//conn.SetReadDeadline(time.Now().Add(time.Second*1))
 		n, err := conn.Read(bufferRcv)
@@ -83,8 +84,9 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 		}
 		//sentNum, _ := binary.Varint(bufferRcv)
 		serverSentTime, _ := binary.Varint(bufferRcv[8:])
-		if rcvPkt%gap == 0 {
-			oneWayLatencies[rcvPkt] = currentTime - serverSentTime
+		if rcvPkt%gap == 0 && recNum < 10000 {
+			oneWayLatencies[recNum] = currentTime - serverSentTime
+			recNum++
 		}
 		// if int(sentNum) > i && lostPkt+2 < 20000{
 		//   lostPacket[lostPkt] = i

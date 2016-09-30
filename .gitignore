@@ -10,3 +10,9 @@ scenario1/Producer
 log
 
 c_sock/tcpserver
+
+go_sock/UDPServer
+
+go_sock/UDPClient
+
+go_sock/TCPClient

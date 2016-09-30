@@ -44,6 +44,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	startTime := time.Now().UnixNano()
 	i := 0
+	recNum := 0
 	for i = 0; i < stopNum; i++ {
 		n, err := conn.Read(buf)
 		if err != nil {
@@ -66,8 +67,9 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 		}
 		//sentNum, _ := binary.Varint(buf)
 		serverSentTime, _ := binary.Varint(buf[8:])
-		if i%gap == 0 {
-			oneWayLatencies[i] = currentTime - serverSentTime
+		if i%gap == 0 && recNum < 10000 {
+			oneWayLatencies[recNum] = currentTime - serverSentTime
+			recNum++
 		}
 	}
 	endTime := time.Now().UnixNano()
