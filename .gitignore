@@ -5,4 +5,6 @@ scenario1/Producer
 
 *.o
 
+40core_log
+
 c_sock/tcpserver
