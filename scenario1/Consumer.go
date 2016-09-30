@@ -328,7 +328,7 @@ func main() {
   pktLost = 0
   for i := 1; i <= cnum; i++ {
     recordOrNot = false
-    if i%(cnum/32) == 0{
+    if cnum < 32 || i%(cnum/32) == 0{
       recordOrNot = true
     }
     wg.Add(1)
