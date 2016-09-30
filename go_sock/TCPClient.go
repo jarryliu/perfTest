@@ -64,10 +64,10 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 		if n == 0 {
 			fmt.Println("recieve 0")
 		}
-		sentNum, _ := binary.Varint(bufferRcv)
-		serverSentTime, _ := binary.Varint(bufferRcv[8:])
-		if rcvPkt%gap == 0 {
-			oneWayLatencies[rcvPkt] = currentTime - serverSentTime
+		sentNum, _ := binary.Varint(buff)
+		serverSentTime, _ := binary.Varint(buff[8:])
+		if i%gap == 0 {
+			oneWayLatencies[i] = currentTime - serverSentTime
 		}
 	}
 	endTime := time.Now().UnixNano()
