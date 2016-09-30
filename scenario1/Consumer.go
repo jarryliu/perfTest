@@ -258,7 +258,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
       fmt.Println("expecting ", msglen, " Bytes and recieved ", n, " Bytes")
     }
     seqNum,_ := binary.Varint(bufferRcv)
-    if seqNum == int(-1):{
+    if seqNum == int64(-1) {
       break
     }
     if recordOrNot && (i >= recordStart) && i <= recordStop && recordNum < recordlen && (gap == 0 || (i-recordStart)%gap == 0){
