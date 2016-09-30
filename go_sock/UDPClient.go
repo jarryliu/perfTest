@@ -70,8 +70,9 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	oneWayLatencies := make([]int64, 10000)
 
 	recNum := 0
-	conn.SetReadDeadline(time.Now().Add(time.Second * 1))
+	//conn.SetReadDeadline(time.Now().Add(time.Second * 1))
 	for i = 0; i < stopNum; i++ {
+		conn.SetReadDeadline(time.Now().Add(time.Second * 1))
 		n, err := conn.Read(bufferRcv)
 		currentTime := time.Now().UnixNano()
 		if n != msglen {

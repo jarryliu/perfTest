@@ -47,6 +47,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	recNum := 0
 	for i = 0; i < stopNum; i++ {
 		n, err := conn.Read(buf)
+		currentTime := time.Now().UnixNano()
 		if err != nil {
 			fmt.Println("Read Error:", err)
 			conn.Close()
@@ -61,7 +62,6 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 			}
 			n += m
 		}
-		currentTime := time.Now().UnixNano()
 		if n == 0 {
 			fmt.Println("recieve 0")
 		}
@@ -75,7 +75,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	endTime := time.Now().UnixNano()
 	fmt.Println(endTime-startTime, " ns passed")
 	fmt.Println(i, "packets received")
-  writeLines(oneWayLatencies, "latency.log"))
+	writeLines(oneWayLatencies, "latency.log")
 	wg.Done()
 }
 

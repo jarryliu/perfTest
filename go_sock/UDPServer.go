@@ -7,11 +7,12 @@ import "os"
 import "time"
 import "encoding/binary"
 import "bufio"
+
 //import "strconv"
 import "sync"
 
 const (
-	BUFSIZE     = 2048
+	BUFSIZE = 2048
 )
 
 var recordlen int
@@ -35,13 +36,13 @@ func CheckErrorExit(errStr string, err error) {
 func main() {
 
 	flag.IntVar(&interval, "i", 10, "The interval of sending message in us")
-  flag.IntVar(&msglen, "l", 1000, "The message length")
-  flag.IntVar(&cnum, "n", 1, "Number of concurrent client connections")
-  //flag.StringVar(&ip, "a", "127.0.0.1", "The IP address of remote server")
-  flag.StringVar(&port, "p", "8080", "The port number of remote server")
-  flag.StringVar(&ctype, "t", "udp", "The connection type, TCP or UDP or UDT")
-  flag.IntVar(&stopNum, "s", 400, "Number of message to send before stop")
-  flag.IntVar(&recordlen, "rl", 200, "The number of latency to record")
+	flag.IntVar(&msglen, "l", 1000, "The message length")
+	flag.IntVar(&cnum, "n", 1, "Number of concurrent client connections")
+	//flag.StringVar(&ip, "a", "127.0.0.1", "The IP address of remote server")
+	flag.StringVar(&port, "p", "8080", "The port number of remote server")
+	flag.StringVar(&ctype, "t", "udp", "The connection type, TCP or UDP or UDT")
+	flag.IntVar(&stopNum, "s", 400, "Number of message to send before stop")
+	flag.IntVar(&recordlen, "rl", 200, "The number of latency to record")
 	//recordOrNot := flag.Bool("record", false, "Indicate whether to record the latency or not")
 	flag.StringVar(&sfile, "f", "tcp_server", "The file name for recording the latency")
 	var rnum int
@@ -50,8 +51,8 @@ func main() {
 	flag.IntVar(&rnum, "rn", 1, "Number of Go Routines to process UDP packets")
 
 	flag.Parse()
-	serverAddr,err := net.ResolveUDPAddr("udp",":"+port)
-  CheckErrorExit("Resolve UDP Error", err)
+	serverAddr, err := net.ResolveUDPAddr("udp", ":"+port)
+	CheckErrorExit("Resolve UDP Error", err)
 
 	ln, err := net.ListenUDP(ctype, serverAddr)
 	CheckErrorExit("Listen Error", err)
@@ -63,22 +64,22 @@ func main() {
 	wg.Wait()
 }
 
-func handleUDP(wg *sync.WaitGroup, c *net.UDPConn){
+func handleUDP(wg *sync.WaitGroup, c *net.UDPConn) {
 	buf := make([]byte, BUFSIZE)
 	sendBuf := make([]byte, msglen)
-	_,addr,err := c.ReadFromUDP(buf)
+	_, addr, err := c.ReadFromUDP(buf)
 	if err != nil {
-		fmt.Println("ReadFromUDP Error: ",err)
+		fmt.Println("ReadFromUDP Error: ", err)
 	}
 	beginTime := time.Now().UnixNano()
 	rateInterval := 1
-	if interval != 0{
+	if interval != 0 {
 		rateInterval = interval
 	}
 	rate := time.Microsecond * time.Duration(rateInterval)
 	throttle := time.Tick(rate)
-	for i:=0; i < stopNum; i++ {
-		if interval == 0 {
+	for i := 0; i < stopNum; i++ {
+		if interval != 0 {
 			<-throttle
 		}
 		binary.PutVarint(sendBuf, int64(i))
@@ -88,9 +89,8 @@ func handleUDP(wg *sync.WaitGroup, c *net.UDPConn){
 	}
 	endTime := time.Now().UnixNano()
 	wg.Done()
-	fmt.Println(endTime - beginTime, " nanoseconds passed")
+	fmt.Println(endTime-beginTime, " nanoseconds passed")
 }
-
 
 func writeLines(lines []int, path string) error {
 	file, err := os.Create(path)

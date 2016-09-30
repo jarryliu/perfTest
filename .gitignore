@@ -16,3 +16,5 @@ go_sock/UDPServer
 go_sock/UDPClient
 
 go_sock/TCPClient
+
+*.log
