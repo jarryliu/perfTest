@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+const (
+	INTERVAL_SIZE = 1000
+	LATENCY_SIZE  = 10000
+)
+
 //import "strconv"
 //import "io/ioutil"
 
@@ -38,16 +43,22 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	var err error
 	conn, err = net.Dial(ctype, ip+":"+port)
 	CheckErrorExit("TCP Connection Error", err)
-	gap := stopNum / 10000
 	buf := make([]byte, msglen)
-	oneWayLatencies := make([]int64, 10000)
+	latencygap := stopNum / LATENCY_SIZE / 2
+	intervalgap := stopNum / INTERVAL_SIZE / 2
+	oneWayLatencies := make([]int64, LATENCY_SIZE)
+	readInterval := make([]int64, INTERVAL_SIZE)
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	startTime := time.Now().UnixNano()
+	currentTime := time.Now().UnixNano()
+	lastTime := currentTime
 	i := 0
-	recNum := 0
+	latencyNum := 0
+	readNum := 0
 	for i = 0; i < stopNum; i++ {
 		n, err := conn.Read(buf)
-		currentTime := time.Now().UnixNano()
+		lastTime = currentTime
+		currentTime = time.Now().UnixNano()
 		if err != nil {
 			fmt.Println("Read Error:", err)
 			conn.Close()
@@ -67,15 +78,20 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 		}
 		//sentNum, _ := binary.Varint(buf)
 		serverSentTime, _ := binary.Varint(buf[8:])
-		if i%gap == 0 && recNum < 10000 {
-			oneWayLatencies[recNum] = currentTime - serverSentTime
-			recNum++
+		if i > stopNum/4 && i < stopNum*3/4 && i%latencygap == 0 && latencyNum < LATENCY_SIZE {
+			oneWayLatencies[latencyNum] = currentTime - serverSentTime
+			latencyNum++
+		}
+		if i > stopNum/4 && i < stopNum*3/4 && i%intervalgap == 0 && readNum < INTERVAL_SIZE {
+			readInterval[readNum] = lastTime - currentTime
+			readNum++
 		}
 	}
 	endTime := time.Now().UnixNano()
 	fmt.Println(endTime-startTime, " ns passed")
 	fmt.Println(i, "packets received")
 	writeLines(oneWayLatencies, "latency.log")
+	writeLines(readInterval, "interval.log")
 	wg.Done()
 }
 

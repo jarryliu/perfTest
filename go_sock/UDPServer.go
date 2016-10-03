@@ -88,6 +88,10 @@ func handleUDP(wg *sync.WaitGroup, c *net.UDPConn) {
 		//time.Sleep(time.Microsecond*time.Duration(interval))
 	}
 	endTime := time.Now().UnixNano()
+	time.Sleep(time.Microsecond * 100)
+	binary.PutVarint(sendBuf, int64(-1))
+	binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
+	c.WriteToUDP(sendBuf, addr)
 	wg.Done()
 	fmt.Println(endTime-beginTime, " nanoseconds passed")
 }

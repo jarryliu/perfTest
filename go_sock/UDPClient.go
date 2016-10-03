@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	BUFSIZE = 2048
+	INTERVAL_SIZE = 1000
+	LATENCY_SIZE  = 10000
 )
 
 //import "strconv"
@@ -66,15 +67,21 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 
 	conn.SetReadBuffer(4 * 1024 * 1024) // setup the read buffer as 10MB.
 	conn.SetWriteBuffer(4 * 1024 * 1024)
-	gap := stopNum / 10000
-	oneWayLatencies := make([]int64, 10000)
+	latencygap := stopNum / LATENCY_SIZE / 2
+	intervalgap := stopNum / INTERVAL_SIZE / 2
+	oneWayLatencies := make([]int64, LATENCY_SIZE)
+	readInterval := make([]int64, INTERVAL_SIZE)
 
-	recNum := 0
+	latencyNum := 0
+	readNum := 0
+	var lastTime int64
+	currentTime := time.Now().UnixNano()
 	//conn.SetReadDeadline(time.Now().Add(time.Second * 1))
 	for i = 0; i < stopNum; i++ {
-		conn.SetReadDeadline(time.Now().Add(time.Second * 1))
+		//conn.SetReadDeadline(time.Now().Add(time.Second * 1))
 		n, err := conn.Read(bufferRcv)
-		currentTime := time.Now().UnixNano()
+		lastTime = currentTime
+		currentTime = time.Now().UnixNano()
 		if n != msglen {
 			fmt.Println("expecting ", msglen, " Bytes and recieved ", n, " Bytes")
 		}
@@ -83,11 +90,19 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 			conn.Close()
 			break
 		}
-		//sentNum, _ := binary.Varint(bufferRcv)
+		sentNum, _ := binary.Varint(bufferRcv)
 		serverSentTime, _ := binary.Varint(bufferRcv[8:])
-		if rcvPkt%gap == 0 && recNum < 10000 {
-			oneWayLatencies[recNum] = currentTime - serverSentTime
-			recNum++
+
+		if sentNum == int64(-1) {
+			break
+		}
+		if rcvPkt > stopNum/4 && rcvPkt < stopNum*3/4 && rcvPkt%latencygap == 0 && latencyNum < LATENCY_SIZE {
+			oneWayLatencies[latencyNum] = currentTime - serverSentTime
+			latencyNum++
+		}
+		if rcvPkt > stopNum/4 && rcvPkt < stopNum*3/4 && rcvPkt%intervalgap == 0 && readNum < INTERVAL_SIZE {
+			readInterval[readNum] = lastTime - currentTime
+			readNum++
 		}
 		// if int(sentNum) > i && lostPkt+2 < 20000{
 		//   lostPacket[lostPkt] = i
@@ -106,6 +121,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	fmt.Println(rcvPkt, "packets received")
 	//writeLines(lostPacket, "lostpkt.log")
 	writeLines(oneWayLatencies, "latency.log")
+	writeLines(readInterval, "interval.log")
 	wg.Done()
 }
 

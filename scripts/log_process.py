@@ -31,12 +31,18 @@ if __name__ == '__main__':
 						fileName = args.dir+"/"+ctype+"_"+mode+"_oneway_"+str(num)+"_"+str(x)
 						if os.path.isfile(fileName):
 							a = np.loadtxt(fileName)
+							if sum(a <= 0) > 1 :
+								print("error", sum(a<=0), fileName)
+							#a = a[a>0]
 							meanStat.append(np.mean(a))
 							varStat.append(np.var(a))
 				if mode == 'fanin':
 					fileName = args.dir+"/"+ctype+"_"+mode+"_oneway_"+str(num)+"_1"
 					if os.path.isfile(fileName):
 						a = np.loadtxt(fileName)
+						if sum(a <= 0) > 1 :
+							print("error", sum(a<=0), fileName)
+						#a = a[a>0]
 						meanStat.append(np.mean(a))
 						varStat.append(np.var(a))
 				print("Mean delay: ")
@@ -54,12 +60,12 @@ if __name__ == '__main__':
 					print(np.var(meanStat)/1000.0/1000.0)
 
 				print("CPU utilization info for producer:")
-				fileName = args.dir+"/"+ctype+"_"+mode+"_prod.log"
+				fileName = args.dir+"/"+ctype+"_"+mode+"_prod_"+str(num)+".log"
 				if os.path.isfile(fileName):
 					for line in fileinput.input(fileName):
 					    print line,
 				print("CPU utilization info for consumer:")
-				fileName = args.dir+"/"+ctype+"_"+mode+"_cons.log"
+				fileName = args.dir+"/"+ctype+"_"+mode+"_cons_"+str(num)+".log"
 				if os.path.isfile(fileName):
 					for line in fileinput.input(fileName):
 					    print line,
