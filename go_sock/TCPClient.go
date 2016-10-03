@@ -83,7 +83,7 @@ func handleTCP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 			latencyNum++
 		}
 		if i > stopNum/4 && i < stopNum*3/4 && i%intervalgap == 0 && readNum < INTERVAL_SIZE {
-			readInterval[readNum] = lastTime - currentTime
+			readInterval[readNum] = currentTime - lastTime
 			readNum++
 		}
 	}

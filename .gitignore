@@ -22,3 +22,5 @@ go_sock/TCPClient
 *_log
 
 *_log2
+
+go_sock/TCPServer

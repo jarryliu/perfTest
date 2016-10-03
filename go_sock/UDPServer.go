@@ -12,7 +12,8 @@ import "bufio"
 import "sync"
 
 const (
-	BUFSIZE = 2048
+	BUFSIZE       = 2048
+	INTERVAL_SIZE = 10000
 )
 
 var recordlen int
@@ -67,6 +68,7 @@ func main() {
 func handleUDP(wg *sync.WaitGroup, c *net.UDPConn) {
 	buf := make([]byte, BUFSIZE)
 	sendBuf := make([]byte, msglen)
+
 	_, addr, err := c.ReadFromUDP(buf)
 	if err != nil {
 		fmt.Println("ReadFromUDP Error: ", err)
@@ -78,25 +80,40 @@ func handleUDP(wg *sync.WaitGroup, c *net.UDPConn) {
 	}
 	rate := time.Microsecond * time.Duration(rateInterval)
 	throttle := time.Tick(rate)
+
+	intervalgap := stopNum / INTERVAL_SIZE / 2
+	readInterval := make([]int64, INTERVAL_SIZE)
+	readNum := 0
+	currentTime := time.Now().UnixNano()
+	lastTime := currentTime
+
+	c.SetWriteBuffer(4 * 1024 * 1024) // setup write buffer to be 40MB
 	for i := 0; i < stopNum; i++ {
 		if interval != 0 {
 			<-throttle
 		}
 		binary.PutVarint(sendBuf, int64(i))
-		binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
+		lastTime = currentTime
+		currentTime = time.Now().UnixNano()
+		binary.PutVarint(sendBuf[8:], currentTime)
 		c.WriteToUDP(sendBuf, addr)
 		//time.Sleep(time.Microsecond*time.Duration(interval))
+		if i > stopNum/4 && i < stopNum*3/4 && i%intervalgap == 0 && readNum < INTERVAL_SIZE {
+			readInterval[readNum] = currentTime - lastTime
+			readNum++
+		}
 	}
 	endTime := time.Now().UnixNano()
 	time.Sleep(time.Microsecond * 100)
 	binary.PutVarint(sendBuf, int64(-1))
 	binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
 	c.WriteToUDP(sendBuf, addr)
+	writeLines(readInterval, "interval.log")
 	wg.Done()
 	fmt.Println(endTime-beginTime, " nanoseconds passed")
 }
 
-func writeLines(lines []int, path string) error {
+func writeLines(lines []int64, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err

@@ -101,7 +101,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 			latencyNum++
 		}
 		if rcvPkt > stopNum/4 && rcvPkt < stopNum*3/4 && rcvPkt%intervalgap == 0 && readNum < INTERVAL_SIZE {
-			readInterval[readNum] = lastTime - currentTime
+			readInterval[readNum] = currentTime - lastTime
 			readNum++
 		}
 		// if int(sentNum) > i && lostPkt+2 < 20000{
