@@ -106,12 +106,17 @@ int main(int argc, char **argv) {
     int recordCount = 0;
     int gap = stopCount/2/RECORDSIZE;
     clock_gettime(CLOCK_MONOTONIC, &startTime);
-
+    int m = 0;
     for (k=1; k <= stopCount; k++){
-      n = read(sockfd, buf, BUFSIZE);
+      m = 0; n = 0;
+      while (n != pktLen){
+        m = read(sockfd, buf+n, BUFSIZE-n);
+        if (m < 0)
+          error("ERROR reading from socket");
+        n += m
+      }
       clock_gettime(CLOCK_REALTIME, &recvTime);
-      if (n < 0)
-        error("ERROR reading from socket");
+
       memcpy((void*)&sendTime , buf, sizeof(struct timespec));
       timespec_diff(&sendTime, &recvTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
