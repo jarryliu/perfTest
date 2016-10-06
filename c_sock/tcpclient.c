@@ -44,8 +44,6 @@ int sockfd;
 int stopCount = 5000000;
 int pktLen = 1000;
 
-char sendbuf[BUFSIZE];
-char recvbuf[BUFSIZE];
 long int recordbuf[RECORDSIZE];
 
 
@@ -54,7 +52,7 @@ int main(int argc, char **argv) {
     struct sockaddr_in serveraddr;
     struct hostent *server;
     char *hostname;
-
+    char buff[BUFFSIZE];
     struct thread_info receiving_thread;
     struct thread_info report_thread;
 
@@ -112,7 +110,7 @@ int main(int argc, char **argv) {
     //pthread_create(&receiving_thread.thread_id, NULL, measureDelay, NULL);
 
     /* get message line from the user */
-    bzero(sendbuf, BUFSIZE);
+    bzero(buf, BUFSIZE);
     //fgets(buf, BUFSIZE, stdin);
 
     /* send the message line to the server */
@@ -121,7 +119,7 @@ int main(int argc, char **argv) {
     struct timespec result;
     int k;
     int recordCount = 0;
-    int gap = pktCounter/2/RECORDSIZE;
+    int gap = stopCount/2/RECORDSIZE;
     clock_gettime(CLOCK_MONOTONIC, &startTime);
 
     for (k=1; k <= stopCount; k++){
@@ -131,9 +129,10 @@ int main(int argc, char **argv) {
         error("ERROR reading from socket");
       memcpy((void*)&sendTime, buf, sizeof(struct timespec))
       timespec_diff(&startTime, &endTime, &result)
-      if (i >= pktCounter/4 && i < pktCount*3/4 && i%gap == 0 && recordCount < RECORDSIZE){
+      if (i >= stopCount/4 && i < stopCount*3/4 && i%gap == 0 && recordCount < RECORDSIZE){
         recordbuf[i] = result.tv_sec*MILLION + result.tv_nsec;
         recordCount ++
+      }
     }
     clock_gettime(CLOCK_MONOTONIC, &endTime);
     shutdown(sockfd, SHUT_RDWR);
@@ -153,16 +152,15 @@ void timespec_diff(struct timespec *start, struct timespec *stop,
         result->tv_sec = stop->tv_sec - start->tv_sec;
         result->tv_nsec = stop->tv_nsec - start->tv_nsec;
     }
-
     return;
 }
 
 void printArray(long int array[], char fielname[],  int num)
 {
      int i;
-     file = fopen(,"w");      /* open the file in append mode */
+     File* file = fopen(filename,"w");      /* open the file in append mode */
      for (i=0; i<num; i++)
           fprintf(file,"%ld",*(array+i)); /* write */
      fclose(file);                       /* close the file pointer */
-     return 0;
+     return ;
 }

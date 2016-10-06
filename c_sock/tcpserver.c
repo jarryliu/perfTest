@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
     printf("server connection disconnected.\n");
     struct timespec result;
     timespec_diff(&startTime, &endTime, &result);
-    print("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
+    printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
     close(childfd);
   }
 }
