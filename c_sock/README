@@ -1,0 +1,11 @@
+Compile
+
+make
+
+Run TCP with default setting, 5000000 packets send in full speed, 10000 latency records.
+./tcpserver <port>
+./tcpclient <server_addr> <port>
+
+Run UDP with default setting,
+./udpserver <port>
+./udpclient <server_addr> <port>

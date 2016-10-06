@@ -111,14 +111,14 @@ func writeLines(lines []int64, path string) error {
 
 func main() {
 
-	flag.IntVar(&interval, "i", 5, "The interval of sending message in ms")
+	flag.IntVar(&interval, "i", 0, "The interval of sending message in ms")
 	flag.IntVar(&msglen, "l", 1000, "The message length")
 	flag.IntVar(&cnum, "n", 1, "Number of concurrent client connections")
 	flag.StringVar(&ip, "a", "127.0.0.1", "The IP address of remote server")
 	flag.StringVar(&port, "p", "8080", "The port number of remote server")
 	flag.StringVar(&ctype, "t", "tcp", "The connection type, TCP or UDP or UDT")
-	flag.IntVar(&stopNum, "s", 400, "Number of message to send before stop")
-	flag.IntVar(&recordlen, "rl", 200, "The number of latency to record")
+	flag.IntVar(&stopNum, "s", 5000000, "Number of message to send before stop")
+	flag.IntVar(&recordlen, "rl", 10000, "The number of latency to record")
 	flag.StringVar(&oneFile, "of", "client_oneWay", "The file name for one way latency")
 	flag.StringVar(&roundFile, "rf", "client_roundtrip", "The file name for round trip latancy")
 	flag.Parse()

@@ -36,14 +36,14 @@ func CheckErrorExit(errStr string, err error) {
 
 func main() {
 
-	flag.IntVar(&interval, "i", 10, "The interval of sending message in us")
+	flag.IntVar(&interval, "i", 0, "The interval of sending message in us")
 	flag.IntVar(&msglen, "l", 1000, "The message length")
 	flag.IntVar(&cnum, "n", 1, "Number of concurrent client connections")
 	//flag.StringVar(&ip, "a", "127.0.0.1", "The IP address of remote server")
 	flag.StringVar(&port, "p", "8080", "The port number of remote server")
 	flag.StringVar(&ctype, "t", "udp", "The connection type, TCP or UDP or UDT")
-	flag.IntVar(&stopNum, "s", 400, "Number of message to send before stop")
-	flag.IntVar(&recordlen, "rl", 200, "The number of latency to record")
+	flag.IntVar(&stopNum, "s", 5000000, "Number of message to send before stop")
+	flag.IntVar(&recordlen, "rl", 10000, "The number of latency to record")
 	//recordOrNot := flag.Bool("record", false, "Indicate whether to record the latency or not")
 	flag.StringVar(&sfile, "f", "tcp_server", "The file name for recording the latency")
 	var rnum int

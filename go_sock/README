@@ -1,0 +1,12 @@
+Compile the code with command
+
+./test_tcp.py -b
+./test_udp.py -b
+
+Run TCP with default setting, 5000000 packets send in full speed, 10000 latency records.
+./TCPServer
+./TCPClient -a <SERVER_ADDRESS>
+
+Run UDP with default setting,
+./UDPServer
+./UDPClient -a <SERVER_ADDRESS>
