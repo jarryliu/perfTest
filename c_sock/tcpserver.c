@@ -122,6 +122,13 @@ int main(int argc, char **argv) {
    * main loop: wait for a connection request, echo input line,
    * then close connection.
    */
+
+   double sendSpeed = sendInterval==0? 0 : 1.0*MILLION/sendInterval * pktLen * 8/1024/1024;
+
+   printf("Hostname: %s\t port number: %d\n", hostname, portno);
+   printf("Stop Count: %d\t packet length: %d\n", stopCount, pktLen);
+   printf("Sending Interval is %d us\n", sendInterval);
+   printf("Sending Speed set to %.2f Mb/s\n\n", sendSpeed);
   clientlen = sizeof(clientaddr);
   while (1) {
 

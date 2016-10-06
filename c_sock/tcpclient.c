@@ -18,6 +18,7 @@
 
 #define BUFSIZE 1000
 #define MILLION 1000000L
+#define BILLION 1000000000L
 #define THOUSAND 1000
 #define RECORDSIZE 10000
 /*
@@ -52,9 +53,7 @@ int main(int argc, char **argv) {
     struct sockaddr_in serveraddr;
     struct hostent *server;
     char *hostname;
-    char buff[BUFFSIZE];
-    struct thread_info receiving_thread;
-    struct thread_info report_thread;
+    char buf[BUFSIZE];
 
     /* check command line arguments */
     if (argc < 3 || argc > 5) {
@@ -72,14 +71,6 @@ int main(int argc, char **argv) {
     if (argc >4){
       pktLen = atoi(argv[4]);
     }
-
-    double sendSpeed = sendInterval==0? 0 : 1.0*MILLION/sendInterval * pktLen * 8/1024/1024;
-
-    printf("Hostname: %s\t port number: %d\n", hostname, portno);
-    printf("Stop Count: %d\t packet length: %d\n", stopCount, pktLen);
-    printf("Sending Interval is %d us\n", sendInterval);
-    printf("Sending Speed set to %.2f Mb/s\n\n", sendSpeed);
-
     //pthread_mutex_init(&lock_x, NULL);
 
     /* socket: create the socket */
@@ -127,10 +118,10 @@ int main(int argc, char **argv) {
       clock_gettime(CLOCK_MONOTONIC, &recvTime);
       if (n < 0)
         error("ERROR reading from socket");
-      memcpy((void*)&sendTime, buf, sizeof(struct timespec))
-      timespec_diff(&startTime, &endTime, &result)
+      memcpy((void*)&sendTime, buf, sizeof(struct timespec));
+      timespec_diff(&startTime, &endTime, &result);
       if (i >= stopCount/4 && i < stopCount*3/4 && i%gap == 0 && recordCount < RECORDSIZE){
-        recordbuf[i] = result.tv_sec*MILLION + result.tv_nsec;
+        recordbuf[i] = result.tv_sec*BILLION + result.tv_nsec;
         recordCount ++
       }
     }
@@ -155,10 +146,10 @@ void timespec_diff(struct timespec *start, struct timespec *stop,
     return;
 }
 
-void printArray(long int array[], char fielname[],  int num)
+void printArray(long int array[], char filename[],  int num)
 {
      int i;
-     File* file = fopen(filename,"w");      /* open the file in append mode */
+     FILE * file = fopen(filename,"w");      /* open the file in append mode */
      for (i=0; i<num; i++)
           fprintf(file,"%ld",*(array+i)); /* write */
      fclose(file);                       /* close the file pointer */
