@@ -113,7 +113,9 @@ int main(int argc, char **argv) {
     int k;
     int recordCount = 0;
     int gap = stopCount/2/RECORDSIZE;
-
+    int sendbuff = 4*1024*1024; //4M
+    setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff));
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &sendbuff, sizeof(sendbuff));
     if (bind(sockfd, (struct sockaddr *) &clientaddr,
        sizeof(clientaddr)) < 0)
       error("ERROR on binding");
@@ -123,6 +125,8 @@ int main(int argc, char **argv) {
       error("ERROR writing to socket");
     }
     clock_gettime(CLOCK_MONOTONIC, &startTime);
+
+    int getNum;
     for (k=1; k <= stopCount; k++){
       n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, &slen);
       if (n < 0) {
@@ -130,6 +134,8 @@ int main(int argc, char **argv) {
       }
       clock_gettime(CLOCK_MONOTONIC, &recvTime);
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
+      memcpy((void*)getNum, buf+sizeof(struct timespec), sizeof(int));
+      if (getNum == -1) break;
       timespec_diff(&sendTime, &recvTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
         recordbuf[recordCount++] = result.tv_sec*BILLION + result.tv_nsec;
@@ -139,6 +145,7 @@ int main(int argc, char **argv) {
     shutdown(sockfd, SHUT_RDWR);
     timespec_diff(&startTime, &endTime, &result);
     printf("Time for running is %lld.%.9ld\n",(long long)result.tv_sec, result.tv_nsec);
+    printf("%d packet lost\n", stopCount -k);
     printArray(recordbuf,"udp_latency.log", RECORDSIZE);
 
     close(sockfd);

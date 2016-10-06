@@ -96,6 +96,11 @@ int main(int argc, char **argv) {
   /*
    * bind: associate the parent socket with a port
    */
+
+   int sendbuff = 4*1024*1024; //4M
+   setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff));
+   setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &sendbuff, sizeof(sendbuff));
+   
   if (bind(sockfd, (struct sockaddr *) &serveraddr,
      sizeof(serveraddr)) < 0)
     error("ERROR on binding");
@@ -116,6 +121,7 @@ int main(int argc, char **argv) {
   for (i=0; i < stopCount; i++) {
     clock_gettime(CLOCK_MONOTONIC, &sendTime);
     memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
+    memcpy(buf+sizeof(struct timespec), (const void*)&i, sizeof(int));
     sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);
     if (sendn < 0) {
       error("ERROR writing to socket");
@@ -128,6 +134,9 @@ int main(int argc, char **argv) {
   struct timespec result;
   timespec_diff(&startTime, &endTime, &result);
   printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
+  usleep(1);
+  memcpy(buf+sizeof(struct timespec), (const void*)&(-1), sizeof(int));
+  sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);
   close(sockfd);
 }
 
