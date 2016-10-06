@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     int portno, n;
     struct sockaddr_in serveraddr, clientaddr;
     struct hostent *server;
-    int slen = size(serveraddr);
+    int slen = sizeof(serveraddr);
     char *hostname;
     char buf[BUFSIZE];
 
