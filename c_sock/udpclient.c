@@ -1,4 +1,4 @@
-/* 
+/*
  * tcpclient.c - A simple TCP client
  * usage: tcpclient <host> <port>
  */
@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h> 
+#include <netdb.h>
 #include <linux/types.h>
 //#include <linux/spinlock.h>
 #include <time.h>
@@ -19,7 +19,7 @@
 #define BUFSIZE 2048
 #define MILLION 1000000L
 #define THOUSAND 1000
-/* 
+/*
  * error - wrapper for perror
  */
 void error(char *msg) {
@@ -27,29 +27,12 @@ void error(char *msg) {
     exit(0);
 }
 
-struct thread_info {
-  pthread_t thread_id;        /* ID returned by pthread_create() */
-  void *argv;          /* From command-line argument */
-};
 
-bool exitFlag = false;
 int sockfd;
 
 int stopCount = 10000;
 int pktLen = 1500;
-int sendInterval =  100;  // in us 
-
-double delays = 0; // in us
-long int delayCount = 0;
-long int pktCounter = 0;
-long int byteCounter = 0;
-long int lastPktCount = 0;
-long int lastByteCount = 0;
-
-
-pthread_mutex_t lock_x;
-
-int head = 0, tail=0;
+int sendInterval =  100;  // in us
 
 char sendbuf[BUFSIZE];
 char recvbuf[BUFSIZE];
@@ -93,14 +76,14 @@ void *measureDelay(void*argv)
   bzero(buf, BUFSIZE);
   while (counter < stopCount){
     n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, &addrlen);
-    if (n < 0) 
+    if (n < 0)
       error("ERROR reading from socket");
-    
+
     if (n != pktLen){
       printf("%d\t", n);
       //erro("ERROR received less pkt");
     }
-    
+
     //printf("Received packet with length %d, head is %d, tail is %d\n", n, head, tail);
 
     clock_gettime(CLOCK_MONOTONIC, &recvTime);
@@ -137,12 +120,12 @@ int main(int argc, char **argv) {
     portno = atoi(argv[2]);
 
     // stop after sending and receiving stopCount packets
-    
+
 
     if (argc > 3) {
       stopCount = atoi(argv[3]);
     }
-    
+
     if (argc >4){
       pktLen = atoi(argv[4]);
     }
@@ -150,7 +133,7 @@ int main(int argc, char **argv) {
     if (argc > 5){
       sendInterval = atoi(argv[5]);
     }
-    
+
     double sendSpeed = 1.0*MILLION/sendInterval * pktLen * 8/1024/1024;
 
     printf("Hostname: %s\t port number: %d\n", hostname, portno);
@@ -162,11 +145,11 @@ int main(int argc, char **argv) {
 
     /* socket: create the socket */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) 
+    if (sockfd < 0)
         error("ERROR opening socket");
 
     int optval = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, 
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
          (const void *)&optval , sizeof(int));
 
     /*
@@ -183,11 +166,11 @@ int main(int argc, char **argv) {
     /* this is the port we will listen on */
     clientaddr.sin_port = htons((unsigned short)portno);
 
-    /* 
-     * bind: associate the parent socket with a port 
+    /*
+     * bind: associate the parent socket with a port
      */
-    if (bind(sockfd, (struct sockaddr *) &clientaddr, 
-       sizeof(clientaddr)) < 0) 
+    if (bind(sockfd, (struct sockaddr *) &clientaddr,
+       sizeof(clientaddr)) < 0)
       error("ERROR on binding");
 
     /* gethostbyname: get the server's DNS entry */
@@ -197,16 +180,16 @@ int main(int argc, char **argv) {
         exit(0);
     }
 
-    
+
     /* build the server's Internet address */
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
+    bcopy((char *)server->h_addr,
     (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons(portno);
 
     /* connect: create a connection with the server */
-    if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0) 
+    if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0)
       error("ERROR connecting");
 
     /* create thread for print out the measure information for each second */
@@ -216,7 +199,7 @@ int main(int argc, char **argv) {
     /* get message line from the user */
     bzero(sendbuf, BUFSIZE);
     //fgets(buf, BUFSIZE, stdin);
-    
+
     /* send the message line to the server */
     struct timespec sendTime;
     int k;
@@ -225,12 +208,12 @@ int main(int argc, char **argv) {
       memcpy(sendbuf, (const void*)&sendTime, sizeof(struct timespec));
       //printf("Send packet with length %d\n", n);
       n = sendto(sockfd, sendbuf, pktLen, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
-      if (n < 0) 
+      if (n < 0)
         error("ERROR writing to socket");
       if (sendInterval != 0)
         usleep(sendInterval);
     }
-    
+
     //printf("Echo from server: %s", buf);
     pthread_join(report_thread.thread_id, NULL);
     pthread_join(receiving_thread.thread_id, NULL);

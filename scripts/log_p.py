@@ -20,7 +20,7 @@ if __name__ == '__main__':
 		exit(-1)
 
 	a = np.loadtxt(args.file)
-
+	a = a[a>0]
 	print("Mean delay: ")
 	print(np.mean(a)/1000.0)
 	print("delay Var: ")

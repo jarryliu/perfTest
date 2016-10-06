@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	INTERVAL_SIZE = 1000
+	INTERVAL_SIZE = 10000
 	LATENCY_SIZE  = 10000
 )
 
