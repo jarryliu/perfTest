@@ -84,12 +84,10 @@ int main(int argc, char **argv) {
 
     /* this is an Internet address */
     clientaddr.sin_family = AF_INET;
-
     /* let the system figure out our IP address */
     clientaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
     /* this is the port we will listen on */
-    clientaddr.sin_port = htons((unsigned short)portno);
+    clientaddr.sin_port = htons(0);
 
     /*
      * bind: associate the parent socket with a port
@@ -129,13 +127,17 @@ int main(int argc, char **argv) {
     int recordCount = 0;
     int gap = stopCount/2/RECORDSIZE;
 
+    if (bind(sockfd, (struct sockaddr *) &clientaddr,
+       sizeof(clientaddr)) < 0)
+      error("ERROR on binding");
+
     n = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     if (n < 0) {
       error("ERROR writing to socket");
     }
     clock_gettime(CLOCK_MONOTONIC, &startTime);
     for (k=1; k <= stopCount; k++){
-      n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+      n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, &sizeof(serveraddr));
       if (n < 0) {
         error("ERROR reading from socket");
       }
