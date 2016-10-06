@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
   while (1) {
     clock_gettime(CLOCK_MONOTONIC, &sendTime);
     memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
-    sendn = sendto(sockfd, buf, recvn, 0, (struct sockaddr *)&clientaddr, addrlen);
+    sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);
     if (sendn < 0) {
       error("ERROR writing to socket");
     }

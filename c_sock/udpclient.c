@@ -114,8 +114,8 @@ int main(int argc, char **argv) {
     serveraddr.sin_port = htons(portno);
 
     /* connect: create a connection with the server */
-    if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0)
-      error("ERROR connecting");
+    //if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0)
+    //  error("ERROR connecting");
 
     /* get message line from the user */
     bzero(buf, BUFSIZE);

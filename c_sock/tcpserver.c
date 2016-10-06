@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
     for ( i=0; i < stopCount; i++){
       clock_gettime(CLOCK_MONOTONIC, &sendTime);
       memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
-      n = write(childfd, buf, BUFSIZE);
+      n = write(childfd, buf, pktLen);
       if (n < 0) {
         error("ERROR writing to socket");
         break;
