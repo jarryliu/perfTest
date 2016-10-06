@@ -16,97 +16,37 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-#define BUFSIZE 2048
+#define BUFSIZE 1000
 #define MILLION 1000000L
+#define BILLION 1000000000L
 #define THOUSAND 1000
+#define RECORDSIZE 10000
 /*
  * error - wrapper for perror
  */
+
+void printArray(long int array[], char fielname[],  int num);
+void timespec_diff(struct timespec *start, struct timespec *stop,
+                   struct timespec *result);
+
 void error(char *msg) {
     perror(msg);
     exit(0);
 }
 
-
 int sockfd;
 
-int stopCount = 10000;
-int pktLen = 1500;
-int sendInterval =  100;  // in us
+int stopCount = 5000000;
+int pktLen = 1000;
 
-char sendbuf[BUFSIZE];
-char recvbuf[BUFSIZE];
-
-
-#define RINGBUFADD(index) index = index+1>=BUFSIZE?index+1-BUFSIZE:index+1
-#define HEADMEETTAIL() head+1-(head+1>=BUFSIZE)*BUFSIZE ==tail
-
-void *measureReport()
-{
-  printf("Packet Num\tThroughput (Mb/s)\tAverage Delay\n");
-  while(!exitFlag){
-    sleep(1);
-
-    pthread_mutex_lock(&lock_x);
-    int counter = pktCounter -lastPktCount;
-    double throughput = 8.0*(byteCounter - lastByteCount)/1024/1024;
-    double aveDelay = delayCount ? 1.0*(delays)/(delayCount)/2 : 0.0;
-    delays = 0;
-    delayCount = 0;
-    lastPktCount = pktCounter;
-    lastByteCount = byteCounter;
-    pthread_mutex_unlock(&lock_x);
-
-    printf("%d\t\t\t%.2f\t\t\t%.2f\n", counter, throughput, aveDelay);
-  }
-  pthread_exit(NULL);
-  return NULL;
-}
-
-
-void *measureDelay(void*argv)
-{
-  char * buf = (char *) recvbuf;
-  int counter = 0;
-  struct timespec sendTime, recvTime;
-  struct sockaddr_in serveraddr;
-  socklen_t addrlen = sizeof(serveraddr);
-  int n;
-  /* print the server's reply */
-  bzero(buf, BUFSIZE);
-  while (counter < stopCount){
-    n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, &addrlen);
-    if (n < 0)
-      error("ERROR reading from socket");
-
-    if (n != pktLen){
-      printf("%d\t", n);
-      //erro("ERROR received less pkt");
-    }
-
-    //printf("Received packet with length %d, head is %d, tail is %d\n", n, head, tail);
-
-    clock_gettime(CLOCK_MONOTONIC, &recvTime);
-    memcpy((void*)&sendTime, buf, sizeof(struct timespec));
-    pthread_mutex_lock(&lock_x);
-    pktCounter += 1;
-    byteCounter += n;
-    delays += MILLION * (recvTime.tv_sec - sendTime.tv_sec) + 1.0*(recvTime.tv_nsec - sendTime.tv_nsec)/THOUSAND;
-    delayCount += 1;
-    pthread_mutex_unlock(&lock_x);
-    counter += 1;
-  }
-  exitFlag = true;
-  pthread_exit(NULL);
-  return NULL;
-}
-
+long int recordbuf[RECORDSIZE];
 
 int main(int argc, char **argv) {
     int portno, n;
     struct sockaddr_in serveraddr, clientaddr;
     struct hostent *server;
     char *hostname;
+    char buf[BUFSIZE]
 
     struct thread_info receiving_thread;
     struct thread_info report_thread;
@@ -129,19 +69,6 @@ int main(int argc, char **argv) {
     if (argc >4){
       pktLen = atoi(argv[4]);
     }
-
-    if (argc > 5){
-      sendInterval = atoi(argv[5]);
-    }
-
-    double sendSpeed = 1.0*MILLION/sendInterval * pktLen * 8/1024/1024;
-
-    printf("Hostname: %s\t port number: %d\n", hostname, portno);
-    printf("Stop Count: %d\t packet length: %d\n", stopCount, pktLen);
-    printf("Sending Interval is %d us\n", sendInterval);
-    printf("Sending Speed set to %.2f Mb/s\n\n", sendSpeed);
-
-    pthread_mutex_init(&lock_x, NULL);
 
     /* socket: create the socket */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -192,32 +119,62 @@ int main(int argc, char **argv) {
     if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0)
       error("ERROR connecting");
 
-    /* create thread for print out the measure information for each second */
-    pthread_create(&report_thread.thread_id, NULL, measureReport, NULL);
-    pthread_create(&receiving_thread.thread_id, NULL, measureDelay, NULL);
-
     /* get message line from the user */
-    bzero(sendbuf, BUFSIZE);
+    bzero(buf, BUFSIZE);
     //fgets(buf, BUFSIZE, stdin);
 
     /* send the message line to the server */
-    struct timespec sendTime;
+    struct timespec startTime, endTime;
+    struct timespec sendTime, recvTime;
+    struct timespec result;
     int k;
-    for (k=1; k <= stopCount; k++){
-      clock_gettime(CLOCK_MONOTONIC, &sendTime);
-      memcpy(sendbuf, (const void*)&sendTime, sizeof(struct timespec));
-      //printf("Send packet with length %d\n", n);
-      n = sendto(sockfd, sendbuf, pktLen, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
-      if (n < 0)
-        error("ERROR writing to socket");
-      if (sendInterval != 0)
-        usleep(sendInterval);
-    }
+    int recordCount = 0;
+    int gap = stopCount/2/RECORDSIZE;
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
 
-    //printf("Echo from server: %s", buf);
-    pthread_join(report_thread.thread_id, NULL);
-    pthread_join(receiving_thread.thread_id, NULL);
+    for (k=1; k <= stopCount; k++){
+      n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+      if (n < 0) {
+        error("ERROR reading from socket");
+      }
+      clock_gettime(CLOCK_MONOTONIC, &recvTime);
+      if (n < 0)
+        error("ERROR reading from socket");
+      memcpy((void*)&sendTime, buf, sizeof(struct timespec));
+      timespec_diff(&startTime, &endTime, &result);
+      if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
+        recordbuf[recordCount++] = result.tv_sec*BILLION + result.tv_nsec;
+      }
+    }
+    clock_gettime(CLOCK_MONOTONIC, &endTime);
+    shutdown(sockfd, SHUT_RDWR);
+    timespec_diff(&startTime, &endTime, &result);
+    printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
+    printArray(recordbuf,"tcp_latency.log", RECORDSIZE);
 
     close(sockfd);
     return 0;
+}
+
+void timespec_diff(struct timespec *start, struct timespec *stop,
+                   struct timespec *result)
+{
+    if ((stop->tv_nsec - start->tv_nsec) < 0) {
+        result->tv_sec = stop->tv_sec - start->tv_sec - 1;
+        result->tv_nsec = stop->tv_nsec - start->tv_nsec + 1000000000;
+    } else {
+        result->tv_sec = stop->tv_sec - start->tv_sec;
+        result->tv_nsec = stop->tv_nsec - start->tv_nsec;
+    }
+    return;
+}
+
+void printArray(long int array[], char filename[],  int num)
+{
+     int i;
+     FILE * file = fopen(filename,"w");      /* open the file in append mode */
+     for (i=0; i<num; i++)
+          fprintf(file,"%ld",*(array+i)); /* write */
+     fclose(file);                       /* close the file pointer */
+     return ;
 }

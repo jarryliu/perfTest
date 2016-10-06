@@ -34,12 +34,6 @@ void error(char *msg) {
     exit(0);
 }
 
-struct thread_info {
-  pthread_t thread_id;        /* ID returned by pthread_create() */
-  void *argv;          /* From command-line argument */
-};
-
-bool exitFlag = false;
 int sockfd;
 
 int stopCount = 5000000;

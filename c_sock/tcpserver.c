@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
   /*
    * check command line arguments
    */
-  if (argc < 2) {
+  if (argc < 2 || argc > 5) {
     fprintf(stderr, "usage: %s <port> [stopCount] [pktLen] [sendInterval]\n", argv[0]);
     exit(1);
   }

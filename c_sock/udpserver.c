@@ -1,5 +1,5 @@
-/* 
- * tcpserver.c - A simple TCP echo server 
+/*
+ * tcpserver.c - A simple TCP echo server
  * usage: tcpserver <port>
  */
 
@@ -8,45 +8,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define BUFSIZE 2048
+#define BUFSIZE 1000
+#define MILLION 1000000L
+#define THOUSAND 1000
 
-#if 0
-/* 
- * Structs exported from in.h
- */
+int stopCount = 5000000;
+int pktLen = 1000;
+int sendInterval = 0;
 
-/* Internet address */
-struct in_addr {
-  unsigned int s_addr; 
-};
-
-/* Internet style socket address */
-struct sockaddr_in  {
-  unsigned short int sin_family; /* Address family */
-  unsigned short int sin_port;   /* Port number */
-  struct in_addr sin_addr;   /* IP address */
-  unsigned char sin_zero[...];   /* Pad to size of 'struct sockaddr' */
-};
-
-/*
- * Struct exported from netdb.h
- */
-
-/* Domain name service (DNS) host entry */
-struct hostent {
-  char    *h_name;        /* official name of host */
-  char    **h_aliases;    /* alias list */
-  int     h_addrtype;     /* host address type */
-  int     h_length;       /* length of address */
-  char    **h_addr_list;  /* list of addresses */
-}
-#endif
+void timespec_diff(struct timespec *start, struct timespec *stop,
+                    struct timespec *result);
 
 /*
  * error - wrapper for perror
@@ -70,29 +47,42 @@ int main(int argc, char **argv) {
   int optval; /* flag value for setsockopt */
   int recvn, sendn; /* message byte size */
 
-  /* 
-   * check command line arguments 
+  /*
+   * check command line arguments
    */
-  if (argc != 2) {
-    fprintf(stderr, "usage: %s <port>\n", argv[0]);
-    exit(1);
-  }
-  portno = atoi(argv[1]);
+   if (argc < 2 || argc > 5) {
+     fprintf(stderr, "usage: %s <port> [stopCount] [pktLen] [sendInterval]\n", argv[0]);
+     exit(1);
+   }
+   portno = atoi(argv[1]);
 
-  /* 
-   * socket: create the parent socket 
+   // stop after sending and receiving stopCount packets
+   if (argc > 2) {
+     stopCount = atoi(argv[2]);
+   }
+
+   if (argc >3){
+     pktLen = atoi(argv[3]);
+   }
+
+   if (argc > 4){
+     sendInterval = atoi(argv[4]);
+   }
+
+  /*
+   * socket: create the parent socket
    */
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) 
+  if (sockfd < 0)
     error("ERROR opening socket");
 
-  /* setsockopt: Handy debugging trick that lets 
-   * us rerun the server immediately after we kill it; 
-   * otherwise we have to wait about 20 secs. 
-   * Eliminates "ERROR on binding: Address already in use" error. 
+  /* setsockopt: Handy debugging trick that lets
+   * us rerun the server immediately after we kill it;
+   * otherwise we have to wait about 20 secs.
+   * Eliminates "ERROR on binding: Address already in use" error.
    */
   optval = 1;
-  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, 
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
        (const void *)&optval , sizeof(int));
 
   /*
@@ -109,31 +99,50 @@ int main(int argc, char **argv) {
   /* this is the port we will listen on */
   serveraddr.sin_port = htons((unsigned short)portno);
 
-  /* 
-   * bind: associate the parent socket with a port 
+  /*
+   * bind: associate the parent socket with a port
    */
-  if (bind(sockfd, (struct sockaddr *) &serveraddr, 
-     sizeof(serveraddr)) < 0) 
+  if (bind(sockfd, (struct sockaddr *) &serveraddr,
+     sizeof(serveraddr)) < 0)
     error("ERROR on binding");
 
-  /* 
-   * main loop: wait for a connection request, echo input line, 
+  /*
+   * main loop: wait for a connection request, echo input line,
    * then close connection.
    */
   clientlen = sizeof(clientaddr);
-  while (1) {
 
-    recvn = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&clientaddr, &addrlen);
-    if (recvn < 0) {
-      error("ERROR reading from socket");
-    }
-    
+  struct timespec sendTime;
+  struct timespec startTime, endTime;
+  clock_gettime(CLOCK_MONOTONIC, &startTime);
+  while (1) {
+    clock_gettime(CLOCK_MONOTONIC, &sendTime);
+    memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
     sendn = sendto(sockfd, buf, recvn, 0, (struct sockaddr *)&clientaddr, addrlen);
     if (sendn < 0) {
       error("ERROR writing to socket");
     }
-    if (sendn < recvn)
-      error("ERROR send receive not match");
+    if (sendInterval != 0)
+      usleep(sendInterval);
   }
+  clock_gettime(CLOCK_MONOTONIC, &endTime);
+  printf("server connection disconnected.\n");
+  struct timespec result;
+  timespec_diff(&startTime, &endTime, &result);
+  printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
   close(sockfd);
+}
+
+void timespec_diff(struct timespec *start, struct timespec *stop,
+                    struct timespec *result)
+{
+     if ((stop->tv_nsec - start->tv_nsec) < 0) {
+         result->tv_sec = stop->tv_sec - start->tv_sec - 1;
+         result->tv_nsec = stop->tv_nsec - start->tv_nsec + 1000000000;
+     } else {
+         result->tv_sec = stop->tv_sec - start->tv_sec;
+         result->tv_nsec = stop->tv_nsec - start->tv_nsec;
+     }
+
+     return;
 }
