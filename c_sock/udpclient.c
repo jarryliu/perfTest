@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
       }
       clock_gettime(CLOCK_MONOTONIC, &recvTime);
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
-      memcpy((void*)getNum, buf+sizeof(struct timespec), sizeof(int));
+      memcpy((void*)&getNum, buf+sizeof(struct timespec), sizeof(int));
       if (getNum == -1) break;
       timespec_diff(&sendTime, &recvTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
