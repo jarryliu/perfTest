@@ -174,7 +174,7 @@ void printArray(long int array[], char filename[],  int num)
      int i;
      FILE * file = fopen(filename,"w");      /* open the file in append mode */
      for (i=0; i<num; i++)
-          fprintf(file,"%ld",*(array+i)); /* write */
+          fprintf(file,"%ld\n",*(array+i)); /* write */
      fclose(file);                       /* close the file pointer */
      return ;
 }

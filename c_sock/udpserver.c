@@ -108,7 +108,10 @@ int main(int argc, char **argv) {
    * main loop: wait for a connection request, echo input line,
    * then close connection.
    */
-  recvlen = recvfrom(fd, buf, BUFSIZE, 0, (struct sockaddr *)&clientaddr, addrlen);
+  recvn = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&clientaddr, addrlen);
+  if (recvn < 0) {
+    error("ERROR reading from socket");
+  }
 
   struct timespec sendTime;
   struct timespec startTime, endTime;
