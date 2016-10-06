@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
       if (n < 0)
         error("ERROR reading from socket");
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
-      timespec_diff(&startTime, &endTime, &result);
+      timespec_diff(&sendTime, &recvTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
         recordbuf[recordCount++] = result.tv_sec*BILLION + result.tv_nsec;
       }
