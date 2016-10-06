@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
     int portno, n;
     struct sockaddr_in serveraddr, clientaddr;
     struct hostent *server;
+    int slen = size(serveraddr)
     char *hostname;
     char buf[BUFSIZE];
 
@@ -137,7 +138,7 @@ int main(int argc, char **argv) {
     }
     clock_gettime(CLOCK_MONOTONIC, &startTime);
     for (k=1; k <= stopCount; k++){
-      n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, &sizeof(serveraddr));
+      n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, &slen);
       if (n < 0) {
         error("ERROR reading from socket");
       }
