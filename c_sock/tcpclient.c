@@ -127,8 +127,8 @@ int main(int argc, char **argv) {
     clock_gettime(CLOCK_MONOTONIC, &endTime);
     shutdown(sockfd, SHUT_RDWR);
     timespec_diff(&startTime, &endTime, &result);
-    printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec)
-    printArray(recordbuf,"tcp_latency.log", RECORDSIZE)
+    printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
+    printArray(recordbuf,"tcp_latency.log", RECORDSIZE);
     return 0;
 }
 
