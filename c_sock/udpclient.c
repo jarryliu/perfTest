@@ -128,16 +128,18 @@ int main(int argc, char **argv) {
     int k;
     int recordCount = 0;
     int gap = stopCount/2/RECORDSIZE;
-    clock_gettime(CLOCK_MONOTONIC, &startTime);
 
+    n = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr))
+    if (n < 0) {
+      error("ERROR writing to socket");
+    }
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
     for (k=1; k <= stopCount; k++){
       n = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
       if (n < 0) {
         error("ERROR reading from socket");
       }
       clock_gettime(CLOCK_MONOTONIC, &recvTime);
-      if (n < 0)
-        error("ERROR reading from socket");
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
       timespec_diff(&startTime, &endTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
@@ -147,7 +149,7 @@ int main(int argc, char **argv) {
     clock_gettime(CLOCK_MONOTONIC, &endTime);
     shutdown(sockfd, SHUT_RDWR);
     timespec_diff(&startTime, &endTime, &result);
-    printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
+    printf("Time for running is %lld.%.9ld\n",(long long)result.tv_sec, result.tv_nsec);
     printArray(recordbuf,"udp_latency.log", RECORDSIZE);
 
     close(sockfd);

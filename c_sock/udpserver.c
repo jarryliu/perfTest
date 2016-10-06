@@ -108,6 +108,7 @@ int main(int argc, char **argv) {
    * main loop: wait for a connection request, echo input line,
    * then close connection.
    */
+  recvlen = recvfrom(fd, buf, BUFSIZE, 0, (struct sockaddr *)&clientaddr, addrlen);
 
   struct timespec sendTime;
   struct timespec startTime, endTime;
