@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <time.h>
+#include <netinet/tcp.h>
 
 #define BUFSIZE 1000
 
@@ -21,9 +22,20 @@ int stopCount = 5000000;
 int pktLen = 1000;
 int sendInterval = 0;
 
-/*
- * error - wrapper for perror
- */
+void timespec_diff(struct timespec *start, struct timespec *stop,
+                    struct timespec *result)
+{
+     if ((stop->tv_nsec - start->tv_nsec) < 0) {
+         result->tv_sec = stop->tv_sec - start->tv_sec - 1;
+         result->tv_nsec = stop->tv_nsec - start->tv_nsec + 1000000000;
+     } else {
+         result->tv_sec = stop->tv_sec - start->tv_sec;
+         result->tv_nsec = stop->tv_nsec - start->tv_nsec;
+     }
+
+     return;
+}
+
 void error(char *msg) {
   perror(msg);
   exit(1);
@@ -36,7 +48,6 @@ int main(int argc, char **argv) {
   int clientlen; /* byte size of client's address */
   struct sockaddr_in serveraddr; /* server's addr */
   struct sockaddr_in clientaddr; /* client addr */
-  struct hostent *hostp; /* client host info */
   char buf[BUFSIZE]; /* message buffer */
   char *hostaddrp; /* dotted decimal host addr string */
   int optval; /* flag value for setsockopt */
@@ -147,8 +158,8 @@ int main(int argc, char **argv) {
     clock_gettime(CLOCK_MONOTONIC, &endTime);
     printf("server connection disconnected.\n");
     struct timespec result;
-    timespec_diff(&startTime, &endTime, &result)
-    print("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec)
+    timespec_diff(&startTime, &endTime, &result);
+    print("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
     close(childfd);
   }
 }
