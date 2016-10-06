@@ -120,15 +120,14 @@ int main(int argc, char **argv) {
         error("ERROR reading from socket");
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
       timespec_diff(&startTime, &endTime, &result);
-      if (i >= stopCount/4 && i < stopCount*3/4 && i%gap == 0 && recordCount < RECORDSIZE){
-        recordbuf[i] = result.tv_sec*BILLION + result.tv_nsec;
-        recordCount ++
+      if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
+        recordbuf[recordCount++] = result.tv_sec*BILLION + result.tv_nsec;
       }
     }
     clock_gettime(CLOCK_MONOTONIC, &endTime);
     shutdown(sockfd, SHUT_RDWR);
-    timespec_diff(&startTime, &endTime, &result)
-    print("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec)
+    timespec_diff(&startTime, &endTime, &result);
+    printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec)
     printArray(recordbuf,"tcp_latency.log", RECORDSIZE)
     return 0;
 }

@@ -17,6 +17,8 @@
 #include <netinet/tcp.h>
 
 #define BUFSIZE 1000
+#define MILLION 1000000L
+#define THOUSAND 1000
 
 int stopCount = 5000000;
 int pktLen = 1000;
