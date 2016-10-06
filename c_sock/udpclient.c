@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
     shutdown(sockfd, SHUT_RDWR);
     timespec_diff(&startTime, &endTime, &result);
     printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
-    printArray(recordbuf,"tcp_latency.log", RECORDSIZE);
+    printArray(recordbuf,"udp_latency.log", RECORDSIZE);
 
     close(sockfd);
     return 0;
