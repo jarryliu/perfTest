@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <time.h>
 
 #define BUFSIZE 1000
 #define MILLION 1000000L
@@ -36,14 +37,11 @@ void error(char *msg) {
 int main(int argc, char **argv) {
   int sockfd; /*  socket */
   int portno; /* port to listen on */
-  int clientlen; /* byte size of client's address */
   struct sockaddr_in serveraddr; /* server's addr */
   struct sockaddr_in clientaddr; /* client addr */
   socklen_t addrlen = sizeof(clientaddr);
 
-  struct hostent *hostp; /* client host info */
   char buf[BUFSIZE]; /* message buffer */
-  char *hostaddrp; /* dotted decimal host addr string */
   int optval; /* flag value for setsockopt */
   int recvn, sendn; /* message byte size */
 
@@ -110,7 +108,6 @@ int main(int argc, char **argv) {
    * main loop: wait for a connection request, echo input line,
    * then close connection.
    */
-  clientlen = sizeof(clientaddr);
 
   struct timespec sendTime;
   struct timespec startTime, endTime;

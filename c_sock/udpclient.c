@@ -46,10 +46,8 @@ int main(int argc, char **argv) {
     struct sockaddr_in serveraddr, clientaddr;
     struct hostent *server;
     char *hostname;
-    char buf[BUFSIZE]
+    char buf[BUFSIZE];
 
-    struct thread_info receiving_thread;
-    struct thread_info report_thread;
 
     /* check command line arguments */
     if (argc < 3) {
