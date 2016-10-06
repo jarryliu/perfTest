@@ -75,19 +75,14 @@ int main(int argc, char **argv) {
         error("ERROR opening socket");
 
     int optval = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
-         (const void *)&optval , sizeof(int));
+    //setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
+    //     (const void *)&optval , sizeof(int));
 
-    /*
-     * build the server's Internet address
-     */
     bzero((char *) &clientaddr, sizeof(clientaddr));
 
     /* this is an Internet address */
     clientaddr.sin_family = AF_INET;
-    /* let the system figure out our IP address */
     clientaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    /* this is the port we will listen on */
     clientaddr.sin_port = htons(0);
 
     /*
