@@ -112,7 +112,8 @@ int main(int argc, char **argv) {
   struct timespec sendTime;
   struct timespec startTime, endTime;
   clock_gettime(CLOCK_MONOTONIC, &startTime);
-  while (1) {
+  int i = 0;
+  for (i=0; i < stopCount; i++) {
     clock_gettime(CLOCK_MONOTONIC, &sendTime);
     memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
     sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);
