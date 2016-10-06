@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
     int recordCount = 0;
     int gap = stopCount/2/RECORDSIZE;
 
-    n = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr))
+    n = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     if (n < 0) {
       error("ERROR writing to socket");
     }
