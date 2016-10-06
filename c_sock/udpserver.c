@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
    int sendbuff = 4*1024*1024; //4M
    setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff));
    setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &sendbuff, sizeof(sendbuff));
-   
+
   if (bind(sockfd, (struct sockaddr *) &serveraddr,
      sizeof(serveraddr)) < 0)
     error("ERROR on binding");
@@ -135,7 +135,8 @@ int main(int argc, char **argv) {
   timespec_diff(&startTime, &endTime, &result);
   printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
   usleep(1);
-  memcpy(buf+sizeof(struct timespec), (const void*)&(-1), sizeof(int));
+  int errcode = -1;
+  memcpy(buf+sizeof(struct timespec), (const void*)&errcode, sizeof(int));
   sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);
   close(sockfd);
 }
