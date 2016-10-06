@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
         m = read(sockfd, buf+n, BUFSIZE-n);
         if (m < 0)
           error("ERROR reading from socket");
-        n += m
+        n += m;
       }
       clock_gettime(CLOCK_REALTIME, &recvTime);
 
