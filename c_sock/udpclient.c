@@ -132,13 +132,13 @@ int main(int argc, char **argv) {
       if (n < 0) {
         error("ERROR reading from socket");
       }
-      clock_gettime(CLOCK_MONOTONIC, &recvTime);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &recvTime);
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
       memcpy((void*)&getNum, buf+sizeof(struct timespec), sizeof(int));
       if (getNum == -1) break;
       timespec_diff(&sendTime, &recvTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
-        recordbuf[recordCount++] = result.tv_sec*BILLION + result.tv_nsec;
+        recordbuf[recordCount++] = (long int)result.tv_sec*BILLION + result.tv_nsec;
       }
     }
     clock_gettime(CLOCK_MONOTONIC, &endTime);

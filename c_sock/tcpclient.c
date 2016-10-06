@@ -109,13 +109,13 @@ int main(int argc, char **argv) {
 
     for (k=1; k <= stopCount; k++){
       n = read(sockfd, buf, BUFSIZE);
-      clock_gettime(CLOCK_MONOTONIC, &recvTime);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &recvTime);
       if (n < 0)
         error("ERROR reading from socket");
-      memcpy((void*)&sendTime, buf, sizeof(struct timespec));
+      memcpy((void*)&recvTime , buf, sizeof(struct timespec));
       timespec_diff(&sendTime, &recvTime, &result);
       if (k >= stopCount/4 && k < stopCount*3/4 && k%gap == 0 && recordCount < RECORDSIZE){
-        recordbuf[recordCount++] = result.tv_sec*BILLION + result.tv_nsec;
+        recordbuf[recordCount++] = (long int)result.tv_sec*BILLION + result.tv_nsec;
       }
     }
     clock_gettime(CLOCK_MONOTONIC, &endTime);

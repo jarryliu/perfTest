@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   int i = 0;
   for (i=0; i < stopCount; i++) {
-    clock_gettime(CLOCK_MONOTONIC, &sendTime);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &sendTime);
     memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
     memcpy(buf+sizeof(struct timespec), (const void*)&i, sizeof(int));
     sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
   printf("server connection disconnected.\n");
   struct timespec result;
   timespec_diff(&startTime, &endTime, &result);
-  printf("Time for running is %lld.%.9ld",(long long)result.tv_sec, result.tv_nsec);
+  printf("Time for running is %lld.%.9ld\n",(long long)result.tv_sec, result.tv_nsec);
   usleep(1);
   int errcode = -1;
   memcpy(buf+sizeof(struct timespec), (const void*)&errcode, sizeof(int));
