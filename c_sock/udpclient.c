@@ -60,7 +60,6 @@ int main(int argc, char **argv) {
 
     // stop after sending and receiving stopCount packets
 
-
     if (argc > 3) {
       stopCount = atoi(argv[3]);
     }
@@ -79,18 +78,10 @@ int main(int argc, char **argv) {
     //     (const void *)&optval , sizeof(int));
 
     bzero((char *) &clientaddr, sizeof(clientaddr));
-
     /* this is an Internet address */
     clientaddr.sin_family = AF_INET;
     clientaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     clientaddr.sin_port = htons(0);
-
-    /*
-     * bind: associate the parent socket with a port
-     */
-    if (bind(sockfd, (struct sockaddr *) &clientaddr,
-       sizeof(clientaddr)) < 0)
-      error("ERROR on binding");
 
     /* gethostbyname: get the server's DNS entry */
     server = gethostbyname(hostname);

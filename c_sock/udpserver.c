@@ -90,11 +90,7 @@ int main(int argc, char **argv) {
 
   /* this is an Internet address */
   serveraddr.sin_family = AF_INET;
-
-  /* let the system figure out our IP address */
   serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-  /* this is the port we will listen on */
   serveraddr.sin_port = htons((unsigned short)portno);
 
   /*
