@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   int i = 0;
   for (i=0; i < stopCount; i++) {
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &sendTime);
+    clock_gettime(CLOCK_REALTIME, &sendTime);
     memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
     memcpy(buf+sizeof(struct timespec), (const void*)&i, sizeof(int));
     sendn = sendto(sockfd, buf, pktLen, 0, (struct sockaddr *)&clientaddr, addrlen);

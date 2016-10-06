@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
       if (n < 0) {
         error("ERROR reading from socket");
       }
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &recvTime);
+      clock_gettime(CLOCK_REALTIME, &recvTime);
       memcpy((void*)&sendTime, buf, sizeof(struct timespec));
       memcpy((void*)&getNum, buf+sizeof(struct timespec), sizeof(int));
       if (getNum == -1) break;

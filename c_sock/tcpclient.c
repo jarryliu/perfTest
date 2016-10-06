@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 
     for (k=1; k <= stopCount; k++){
       n = read(sockfd, buf, BUFSIZE);
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &recvTime);
+      clock_gettime(CLOCK_REALTIME, &recvTime);
       if (n < 0)
         error("ERROR reading from socket");
       memcpy((void*)&recvTime , buf, sizeof(struct timespec));

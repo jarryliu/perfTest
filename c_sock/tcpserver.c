@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
     struct timespec startTime, endTime;
     clock_gettime(CLOCK_MONOTONIC, &startTime);
     for ( i=0; i < stopCount; i++){
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &sendTime);
+      clock_gettime(CLOCK_REALTIME, &sendTime);
       memcpy(buf, (const void*)&sendTime, sizeof(struct timespec));
       n = write(childfd, buf, pktLen);
       if (n < 0) {
