@@ -26,3 +26,5 @@ go_sock/TCPClient
 go_sock/TCPServer
 
 go_sock/temp-plot.html
+
+*.jpg
