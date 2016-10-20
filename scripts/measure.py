@@ -27,10 +27,10 @@ if __name__ == '__main__':
 	p = []
 
 	startNum = 0
-	if name == "Producer":
-		startNum = int(commands.getoutput("echo `ifconfig em1 | grep 'TX packets'`| cut -d " " -f3"))
-	elif name == "Consumer":
-		startNum = int(commands.getoutput("echo `ifconfig em1 | grep 'RX packets'`| cut -d " " -f3"))
+	if args.name == "Producer":
+		startNum = int(commands.getoutput("echo `ifconfig em1 | grep 'TX packets'`| cut -d \" \" -f3"))
+	elif args.name == "Consumer":
+		startNum = int(commands.getoutput("echo `ifconfig em1 | grep 'RX packets'`| cut -d \" \" -f3"))
 
 	pid = commands.getoutput("pgrep "+args.name)
 	pids = pid.split('\n')
@@ -115,10 +115,10 @@ if __name__ == '__main__':
 
 
 	endNum = 0
-	if name == "Producer":
-		endNum = int(commands.getoutput("echo `ifconfig em1 | grep 'TX packets'`| cut -d " " -f3"))
-	elif name == "Consumer":
-		endNum = int(commands.getoutput("echo `ifconfig em1 | grep 'RX packets'`| cut -d " " -f3"))
+	if args.name == "Producer":
+		endNum = int(commands.getoutput("echo `ifconfig em1 | grep 'TX packets'`| cut -d \" \" -f3"))
+	elif args.name == "Consumer":
+		endNum = int(commands.getoutput("echo `ifconfig em1 | grep 'RX packets'`| cut -d \" \" -f3"))
 
 	print("Number of process running is " + str(len(pids)))
 	print("The average user CPU usage is " +str(sum(ucpu)) + "%, " + \
