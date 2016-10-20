@@ -25,6 +25,13 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 	p = []
+
+	startNum = 0
+	if name == "Producer":
+		startNum = int(commands.getoutput("echo `ifconfig em1 | grep 'TX packets'`| cut -d " " -f3"))
+	elif name == "Consumer":
+		startNum = int(commands.getoutput("echo `ifconfig em1 | grep 'RX packets'`| cut -d " " -f3"))
+
 	pid = commands.getoutput("pgrep "+args.name)
 	pids = pid.split('\n')
 	if (len(pids) > 1) :
@@ -105,6 +112,14 @@ if __name__ == '__main__':
 	size = len(uTotalList)
 	utcpu = np.mean(uTotalList[size/4:size*3/4])*100
 	stcpu = np.mean(sTotalList[size/4:size*3/4])*100
+
+
+	endNum = 0
+	if name == "Producer":
+		endNum = int(commands.getoutput("echo `ifconfig em1 | grep 'TX packets'`| cut -d " " -f3"))
+	elif name == "Consumer":
+		endNum = int(commands.getoutput("echo `ifconfig em1 | grep 'RX packets'`| cut -d " " -f3"))
+
 	print("Number of process running is " + str(len(pids)))
 	print("The average user CPU usage is " +str(sum(ucpu)) + "%, " + \
 	"system CPU usage is " + str(sum(scpu)) + "%, " + \
@@ -112,3 +127,4 @@ if __name__ == '__main__':
 	print("Total user CPU usage is " + str(utcpu) + "%, " + \
 	"system CPU usage is " + str(stcpu) + "%, " + \
 	"overall CPU usage is " + str(utcpu+stcpu) + "%")
+	print("Total packets transmitted  " + str(endNum - startNum))
