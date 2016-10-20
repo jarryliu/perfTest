@@ -30,3 +30,7 @@ go_sock/TCPServer
 go_sock/temp-plot.html
 
 *.jpg
+
+scenario/Producer
+
+scenario/Consumer
