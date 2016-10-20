@@ -220,7 +220,7 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	//buffer := make([]byte, msglen)
 	bufferRcv := make([]byte, msglen)
 	buff := make([]byte, msglen)
-	binary.PutVarint(buff, int64(conn.LocalAddr().(*net.TCPAddr).Port))
+	binary.PutVarint(buff, int64(conn.LocalAddr().(*net.UDPAddr).Port))
 	//binary.PutVarint(buff[8:], )
 	conn.WriteTo(buff, serverAddr)
 	//ln, _ := net.ListenUDP("udp", localAddr)
