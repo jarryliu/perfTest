@@ -17,7 +17,7 @@ go_sock/UDPClient
 
 go_sock/TCPClient
 
-draw/scenarios/log
+draw/scenarios/log*
 
 *.log
 
