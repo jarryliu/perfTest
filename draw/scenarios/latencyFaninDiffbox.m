@@ -4,15 +4,15 @@ f1 = figure;
 hold on;
 
 
-load log_5/tcp_fanin_oneway_64_1;
-load log_5/tcp_fanin_oneway_128_1;
-load log_5/tcp_fanin_oneway_256_1;
-load log_5/tcp_fanin_oneway_512_1;
+load log_3/tcp_fanin_oneway_64_1;
+load log_3/tcp_fanin_oneway_128_1;
+load log_3/tcp_fanin_oneway_256_1;
+load log_3/tcp_fanin_oneway_512_1;
 
-load log_5/udp_fanin_oneway_64_1;
-load log_5/udp_fanin_oneway_128_1;
-load log_5/udp_fanin_oneway_256_1;
-load log_5/udp_fanin_oneway_512_1;
+load log_3/udp_fanin_oneway_64_1;
+load log_3/udp_fanin_oneway_128_1;
+load log_3/udp_fanin_oneway_256_1;
+load log_3/udp_fanin_oneway_512_1;
 
 
 M = [tcp_fanin_oneway_64_1(1:2000,:)/1000000 udp_fanin_oneway_64_1(1:2000,:)/1000000 ... %udt_fanin_oneway_64_1(1:2000,:)/1000000 ...

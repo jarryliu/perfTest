@@ -38,7 +38,7 @@ if args.type == "fanout" or args.type == "all":
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Producer -t 0 > log/udp_fanout_prod_"+str(2**i) + ".log")
 print("\n\n")
-if args.type == "fanout" or args.type == "all":
+if args.type == "fanin" or args.type == "all":
     if args.ctype == "tcp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest TCP for Fanin model with 1 consumers and "+ str(2**i) +" producer")
