@@ -14,7 +14,6 @@ import (
 
 const (
 	INTERVAL_SIZE = 1000
-	LATENCY_SIZE  = 10000
 )
 
 var recordlen int
@@ -102,10 +101,9 @@ func main() {
 
 	//c.SetReadBuffer(4 * 1024 * 1024) // setup the read buffer as 10MB.
 	//c.SetWriteBuffer(4 * 1024 * 1024)
-	latencygap := stopNum / LATENCY_SIZE / 2
+	latencygap := stopNum / recordlen / 2
 	//intervalgap := stopNum / INTERVAL_SIZE / 2
-	oneWayLatencies := make([]int64, LATENCY_SIZE)
-	readInterval := make([]int64, INTERVAL_SIZE)
+	oneWayLatencies := make([]int64, recordlen)
 
 	latencyNum := 0
 	currentTime := time.Now().UnixNano()
@@ -126,7 +124,7 @@ func main() {
 		if sentNum == int64(-1) {
 			break
 		}
-		if rcvPkt > stopNum/4 && rcvPkt < stopNum*3/4 && rcvPkt%latencygap == 0 && latencyNum < LATENCY_SIZE {
+		if rcvPkt >= stopNum/4 && rcvPkt%latencygap == 0 && latencyNum < recordlen {
 			oneWayLatencies[latencyNum] = currentTime - serverSentTime
 			latencyNum++
 		}
@@ -153,5 +151,4 @@ func main() {
 	fmt.Println(rcvPkt, "packets received")
 	//writeLines(lostPacket, "lostpkt.log")
 	writeLines(oneWayLatencies, "latency.log")
-	writeLines(readInterval, "interval.log")
 }

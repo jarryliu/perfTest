@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	"golang.org/x/net/ipv4"
@@ -88,6 +89,8 @@ func main() {
 
 	// make a buffer
 	b := make([]byte, msglen)
+	intPort, err := strconv.Atoi(port)
+	dst := &net.UDPAddr{IP: group, Port: intPort}
 
 	//go handleAck(p)
 	p.SetTOS(0x0)
@@ -96,13 +99,11 @@ func main() {
 	CheckError("Set Multicast Interface Error", err)
 
 	currentTime := time.Now().UnixNano()
-	for i := 1; i <= cnum; i++ {
+	for i := 1; i <= stopNum; i++ {
 		binary.PutVarint(b, int64(i))
 		currentTime = time.Now().UnixNano()
 		binary.PutVarint(b[8:], currentTime)
 		//The application can also send both unicast and multicast packets.
-
-		dst := &net.UDPAddr{IP: group, Port: 1024}
 		_, err = p.WriteTo(b, nil, dst)
 		CheckError("Write To multicast Error", err)
 	}
@@ -111,7 +112,7 @@ func main() {
 	//binary.PutVarint(sendBuf[8:], currentTime)
 	//c.WriteToUDP(sendBuf, addr)
 	//The application can also send both unicast and multicast packets.
-	dst := &net.UDPAddr{IP: group, Port: 1024}
+
 	_, err = p.WriteTo(b, nil, dst)
 	CheckError("Write To multicast Error", err)
 }
