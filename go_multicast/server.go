@@ -99,6 +99,7 @@ func main() {
 	CheckError("Set Multicast Interface Error", err)
 
 	currentTime := time.Now().UnixNano()
+	startTime := time.Now().UnixNano()
 	for i := 1; i <= stopNum; i++ {
 		binary.PutVarint(b, int64(i))
 		currentTime = time.Now().UnixNano()
@@ -107,14 +108,17 @@ func main() {
 		_, err = p.WriteTo(b, nil, dst)
 		CheckError("Write To multicast Error", err)
 	}
+	endTime := time.Now().UnixNano()
+	time.Sleep(time.Microsecond * 100)
 	binary.PutVarint(b, int64(-1))
 	//currentTime = time.Now().UnixNano()
 	//binary.PutVarint(sendBuf[8:], currentTime)
 	//c.WriteToUDP(sendBuf, addr)
 	//The application can also send both unicast and multicast packets.
-
 	_, err = p.WriteTo(b, nil, dst)
 	CheckError("Write To multicast Error", err)
+
+	fmt.Println(endTime-startTime/1000/1000, "us passed")
 }
 
 func writeLines(lines []int64, path string) error {
