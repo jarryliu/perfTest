@@ -133,8 +133,8 @@ func main() {
 		rcvPkt++
 
 		//The application can also send both unicast and multicast packets.
-		//_, err = p.WriteTo(b, nil, src)
-		//CheckErrorExit("Write to socket Error", err)
+		_, err = p.WriteTo(b, nil, src)
+		CheckErrorExit("Write to socket Error", err)
 		// dst := &net.UDPAddr{IP: group, Port: 1024}
 		// for _, ifi := range []*net.Interface{en0} {
 		// 	if err := p.SetMulticastInterface(ifi); err != nil {

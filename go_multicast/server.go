@@ -103,13 +103,8 @@ func main() {
 		//The application can also send both unicast and multicast packets.
 
 		dst := &net.UDPAddr{IP: group, Port: 1024}
-		for _, ifi := range []*net.Interface{en0} {
-			err = p.SetMulticastInterface(ifi)
-			CheckError("Set Multicast Interface Error", err)
-			p.SetMulticastTTL(2)
-			err = p.WriteTo(b, nil, dst)
-			CheckError("Write To multicast Error", err)
-		}
+		_, err = p.WriteTo(b, nil, dst)
+		CheckError("Write To multicast Error", err)
 	}
 	binary.PutVarint(b, int64(-1))
 	//currentTime = time.Now().UnixNano()
@@ -117,7 +112,7 @@ func main() {
 	//c.WriteToUDP(sendBuf, addr)
 	//The application can also send both unicast and multicast packets.
 	dst := &net.UDPAddr{IP: group, Port: 1024}
-	err = p.WriteTo(b, nil, dst)
+	_, err = p.WriteTo(b, nil, dst)
 	CheckError("Write To multicast Error", err)
 }
 
