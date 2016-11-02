@@ -34,3 +34,5 @@ go_sock/temp-plot.html
 scenario/Producer
 
 scenario/Consumer
+
+go_multicast/client
