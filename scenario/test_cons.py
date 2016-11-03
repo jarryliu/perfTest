@@ -43,6 +43,14 @@ if args.type == "fanout" or args.type == "all":
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Consumer -t 0 > log/udp_fanout_cons_"+str(2**i) + ".log")
             time.sleep(5)
+    if args.ctype == "multicast" or args.ctype == "all":
+        for i in [6,7,8,9]:
+            print("\nTest Multicast for Fanout model with "+ str(2**i) +" concurrent consumers and 1 producer")
+            os.system("./Consumer -c multicast -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -pn 1 -n="+str(2**i)+ \
+                " -of=log/mtc_fanout_oneway_"+str(2**i) + " -rf=log/umtc_fanout_roundtrip_" + str(2**i)+" &")
+            time.sleep(1)
+            os.system("python ../scripts/measure.py -n Consumer -t 0 > log/mtc_fanout_cons_"+str(2**i) + ".log")
+            time.sleep(5)
 print("\n\n")
 if args.type == "fanin" or args.type == "all":
     if args.ctype == "tcp" or args.ctype == "all":
@@ -56,8 +64,16 @@ if args.type == "fanin" or args.type == "all":
     if args.ctype == "udp" or args.ctype == "all":
         for i in [6,7,8,9]:
             print("\nTest UDP for Fanin model with "+ str(2**i) +" concurrent producers and 1 consumer")
-            os.system("./Consumer -c udp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl=5000 -n=1 -pn="+str(2**i)+ \
+            os.system("./Consumer -c udp -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -n=1 -pn="+str(2**i)+ \
                 " -of=log/udp_fanin_oneway_"+str(2**i) + " -rf=log/udp_fanin_roundtrip_" + str(2**i)+" &")
             time.sleep(1)
             os.system("python ../scripts/measure.py -n Consumer -t 0 > log/udp_fanin_cons_"+str(2**i) + ".log")
+            time.sleep(5)
+    if args.ctype == "multicast" or args.ctype == "all":
+        for i in [6,7,8,9]:
+            print("\nTest Multicast for Fanin model with "+ str(2**i) +" concurrent producers and 1 consumer")
+            os.system("./Consumer -c multicast -a="+ args.address +" -l="+str(args.length)+" -s="+ str(args.stopnum) +" -rl="+str(args.records)+" -n=1 -pn="+str(2**i)+ \
+                " -of=log/mtc_fanin_oneway_"+str(2**i) + " -rf=log/mtc_fanin_roundtrip_" + str(2**i)+" &")
+            time.sleep(1)
+            os.system("python ../scripts/measure.py -n Consumer -t 0 > log/mtc_fanin_cons_"+str(2**i) + ".log")
             time.sleep(5)
