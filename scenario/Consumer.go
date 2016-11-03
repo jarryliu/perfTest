@@ -302,7 +302,7 @@ func handleMulticast(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	group := net.ParseIP(maddr)
 
 	//an application listens to an appropriate address with an appropriate service port.
-	c, err := net.ListenPacket("udp4", ":"+port)
+	c, err := net.ListenPacket("udp4", "224.0.0.0:"+port)
 	CheckErrorExit("Listen Packet Error", err)
 	defer c.Close()
 	// join group
@@ -438,6 +438,8 @@ func main() {
 			time.Sleep(time.Microsecond * 5)
 			// }else if ctype == "udt" {
 			//   go handleUDT(&wg, i, recordOrNot)
+		} else if ctype == "multicast" {
+			go handleMulticast(&wg, i, recordOrNot)
 		}
 	}
 	wg.Wait()
