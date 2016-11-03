@@ -8,6 +8,8 @@ import (
 	"net"
 	"os"
 	"time"
+
+	"golang.org/x/net/ipv4"
 	//"math/rand"
 	"strconv"
 	"sync"
@@ -29,6 +31,8 @@ var pnum int
 var oneFile string
 var roundFile string
 var pktLost int
+var intf string
+var maddr string
 
 var rwMutex sync.RWMutex
 
@@ -285,6 +289,102 @@ func handleUDP(wg *sync.WaitGroup, id int, recordOrNot bool) {
 	wg.Done()
 }
 
+func handleMulticast(wg *sync.WaitGroup, id int, recordOrNot bool) {
+	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
+	var err error
+	/* Lets prepare a address at any address at port 10001*/
+	en0, err := net.InterfaceByName("em1")
+	CheckErrorExit("Interface By Name Error", err)
+
+	//en1, err := net.InterfaceByName("em2")
+	//CheckErrorExit("Interface By Name Error", err)
+
+	group := net.ParseIP(maddr)
+
+	//an application listens to an appropriate address with an appropriate service port.
+	c, err := net.ListenPacket("udp4", ":"+port)
+	CheckErrorExit("Listen Packet Error", err)
+	defer c.Close()
+	// join group
+	p := ipv4.NewPacketConn(c)
+	err = p.JoinGroup(en0, &net.UDPAddr{IP: group})
+	CheckErrorExit("Join Group Error", err)
+
+	//err = p.JoinGroup(en1, &net.UDPAddr{IP: group})
+	//CheckErrorExit("Join Group Error", err)
+
+	// if the application need a dest address in the packet
+	err = p.SetControlMessage(ipv4.FlagDst, true)
+	CheckErrorExit("Set Control Message Error", err)
+
+	p.SetTOS(0x0)
+	p.SetTTL(2)
+
+	//c.SetWriteBuffer(4 * 1024 * 1024) // set write buffer side to 10M
+	//c.SetReadBuffer(4 * 1024 * 1024)  // set write buffer side to 10M
+
+	//var roundTripLatencies []int
+	var oneWayLatencies []int
+	if recordOrNot {
+		//roundTripLatencies = make([]int, recordlen)
+		oneWayLatencies = make([]int, recordlen)
+	}
+
+	//buffer := make([]byte, msglen)
+	bufferRcv := make([]byte, msglen)
+	//ln, _ := net.ListenUDP("udp", localAddr)
+
+	i := 0
+	recordNum := 0
+	recordStart := stopnum * pnum / 4
+	recordStop := stopnum * pnum * 3 / 4
+	gap := stopnum * pnum / recordlen / 2
+	//conn.SetReadDeadline(time.Now().Add(time.Second*1))
+	for {
+		n, cm, _, err := p.ReadFrom(bufferRcv)
+		CheckErrorExit("ReadFrom socket error", err)
+		currentTime := time.Now().UnixNano()
+		if !cm.Dst.IsMulticast() || !cm.Dst.Equal(group) {
+			continue
+		}
+		if n != msglen {
+			fmt.Println("expecting ", msglen, " Bytes and recieved ", n, " Bytes")
+		}
+
+		seqNum, _ := binary.Varint(bufferRcv)
+		if seqNum == int64(-1) {
+			break
+		}
+		if recordOrNot && (i >= recordStart) && i <= recordStop && recordNum < recordlen && (gap == 0 || (i-recordStart)%gap == 0) {
+			serverSentTime, _ := binary.Varint(bufferRcv[8:])
+			//append one way latency
+			oneWayLatency := currentTime - serverSentTime
+			oneWayLatencies[recordNum] = int(oneWayLatency)
+			recordNum++
+			//append round trip latency
+			//roundTripLatency := currentTime2 - currentTime1
+			//roundTripLatencies[recordlen - stopnum +i] = int(roundTripLatency)
+		}
+		i++
+		if i >= stopnum*pnum {
+			break
+		}
+		//fmt.Println("sleep at ", i)
+		//time.Sleep(time.Millisecond * time.Duration(interval))
+	}
+	//write output to files
+	if recordOrNot {
+		writeLines(oneWayLatencies, recordNum, oneFile+"_"+strconv.Itoa(id))
+		//writeLines(roundTripLatencies, roundFile)
+	}
+	if stopnum*pnum-i > 0 {
+		rwMutex.Lock()
+		pktLost += stopnum*pnum - i - 1
+		rwMutex.Unlock()
+	}
+	wg.Done()
+}
+
 func writeLines(lines []int, num int, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -318,6 +418,8 @@ func main() {
 	flag.IntVar(&recordlen, "rl", 200, "The number of latency to record")
 	flag.StringVar(&oneFile, "of", "client_oneWay", "The file name for one way latency")
 	flag.StringVar(&roundFile, "rf", "client_roundtrip", "The file name for round trip latancy")
+	flag.StringVar(&maddr, "m", "224.0.1.1", "Multicast address")
+	flag.StringVar(&intf, "if", "em1", "interface for multicast")
 	flag.Parse()
 
 	var wg sync.WaitGroup
