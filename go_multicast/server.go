@@ -63,7 +63,7 @@ func main() {
 	flag.StringVar(&intf, "I", "em1", "Name of the interface for multicast")
 	flag.Parse()
 
-	en0, err := net.InterfaceByName("em1")
+	en0, err := net.InterfaceByName(intf)
 	CheckErrorExit("Interface By Name Error", err)
 
 	//en1, err := net.InterfaceByName("em2")
@@ -118,7 +118,7 @@ func main() {
 	_, err = p.WriteTo(b, nil, dst)
 	CheckError("Write To multicast Error", err)
 
-	fmt.Println(endTime-startTime/1000/1000, "us passed")
+	fmt.Println((endTime-startTime)/1000/1000, "ms passed")
 }
 
 func writeLines(lines []int64, path string) error {

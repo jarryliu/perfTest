@@ -68,7 +68,7 @@ func main() {
 	flag.StringVar(&intf, "I", "em1", "Name of the interface for multicast")
 	flag.Parse()
 
-	en0, err := net.InterfaceByName("em1")
+	en0, err := net.InterfaceByName(intf)
 	CheckErrorExit("Interface By Name Error", err)
 
 	//en1, err := net.InterfaceByName("em2")
@@ -147,7 +147,7 @@ func main() {
 	//wg.Wait()
 	endTime := time.Now().UnixNano()
 	fmt.Println("END Client Program, ", stopNum-rcvPkt, " packets lost")
-	fmt.Println(endTime-startTime, " ns passed")
+	fmt.Println((endTime-startTime)/1000/1000, "ms passed")
 	fmt.Println(rcvPkt, "packets received")
 	//writeLines(lostPacket, "lostpkt.log")
 	writeLines(oneWayLatencies, "latency.log")
