@@ -272,7 +272,7 @@ func handleMulticast(chanItem <-chan int64) {
 			break
 		}
 		binary.PutVarint(b, int64(i))
-		currentTime = time.Now().UnixNano()
+		//currentTime = time.Now().UnixNano()
 		binary.PutVarint(b[8:], send_time)
 		//The application can also send both unicast and multicast packets.
 		_, err = p.WriteTo(b, nil, dst)
