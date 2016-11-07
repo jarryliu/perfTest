@@ -4,37 +4,43 @@ f1 = figure;
 hold on;
 
 
-load log_3/tcp_fanin_oneway_64_1;
-load log_3/tcp_fanin_oneway_128_1;
-load log_3/tcp_fanin_oneway_256_1;
-load log_3/tcp_fanin_oneway_512_1;
+load log/tcp_fanin_oneway_64_1;
+load log/tcp_fanin_oneway_128_1;
+load log/tcp_fanin_oneway_256_1;
+load log/tcp_fanin_oneway_512_1;
 
-load log_3/udp_fanin_oneway_64_1;
-load log_3/udp_fanin_oneway_128_1;
-load log_3/udp_fanin_oneway_256_1;
-load log_3/udp_fanin_oneway_512_1;
+load log/udp_fanin_oneway_64_1;
+load log/udp_fanin_oneway_128_1;
+load log/udp_fanin_oneway_256_1;
+load log/udp_fanin_oneway_512_1;
 
+load log/mtc_fanin_oneway_64_1;
+load log/mtc_fanin_oneway_128_1;
+load log/mtc_fanin_oneway_256_1;
+load log/mtc_fanin_oneway_512_1;
 
-M = [tcp_fanin_oneway_64_1(1:2000,:)/1000000 udp_fanin_oneway_64_1(1:2000,:)/1000000 ... %udt_fanin_oneway_64_1(1:2000,:)/1000000 ...
-    tcp_fanin_oneway_128_1(1:2000,:)/1000000 udp_fanin_oneway_128_1(1:2000,:)/1000000 ... %udt_fanin_oneway_128_1(1:2000,:)/1000000 ...
-    tcp_fanin_oneway_256_1(1:2000,:)/1000000 udp_fanin_oneway_256_1(1:2000,:)/1000000 ... %udt_fanin_oneway_256_1(1:2000,:)/1000000 ...
-    tcp_fanin_oneway_512_1(1:2000,:)/1000000 udp_fanin_oneway_512_1(1:2000,:)/1000000 ]; %udt_fanin_oneway_512_1(1:2000,:)/1000000]
+M = [tcp_fanin_oneway_64_1(1:9000,:)/1000000 udp_fanin_oneway_64_1(1:9000,:)/1000000 mtc_fanin_oneway_64_1(1:9000,:)/1000000 ...
+    tcp_fanin_oneway_128_1(1:9000,:)/1000000 udp_fanin_oneway_128_1(1:9000,:)/1000000 mtc_fanin_oneway_128_1(1:9000,:)/1000000 ...
+    tcp_fanin_oneway_256_1(1:9000,:)/1000000 udp_fanin_oneway_256_1(1:9000,:)/1000000 mtc_fanin_oneway_256_1(1:9000,:)/1000000 ...
+    tcp_fanin_oneway_512_1(1:9000,:)/1000000 udp_fanin_oneway_512_1(1:9000,:)/1000000 mtc_fanin_oneway_512_1(1:9000,:)/1000000];
 
-h1 = boxplot(M, 'colors', 'kbkbkbkb', 'notch', 'on', 'Labels', ...
-{'TCP 64','UDP 64', 'TCP 128','UDP 128','TCP 256','UDP 256','TCP 512','UDP 512'});
+mean(udp_fanin_oneway_256_1)
 
-tx = [2.5 2.5];
-ty = [-10 200000];
-h = line(tx, ty, 'color', 'k', 'linewidth', 2);
+h1 = boxplot(M, 'colors', 'kbrkbrkbrkbr', 'notch', 'on', 'Labels', ...
+{'TCP 64','UDP 64', 'MTC 64', 'TCP 128','UDP 128', 'MTC 128', 'TCP 256','UDP 256','MTC 256', 'TCP 512','UDP 512', 'MTC 512'});
 
-tx = [4.5 4.5];
+tx = [3.5 3.5];
+ty = [-10 900000];
 h = line(tx, ty, 'color', 'k', 'linewidth', 2);
 
 tx = [6.5 6.5];
 h = line(tx, ty, 'color', 'k', 'linewidth', 2);
 
+tx = [9.5 9.5];
+h = line(tx, ty, 'color', 'k', 'linewidth', 2);
+
 % tx = [2.5 2.5];
-% ty = [-10 200000];
+% ty = [-10 900000];
 % h = line(tx, ty, 'color', 'k', 'linewidth', 2);
 % 
 % tx = [4.5 4.5];
