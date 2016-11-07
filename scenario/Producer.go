@@ -62,10 +62,10 @@ func handleProd() {
 		time.Sleep(time.Microsecond * time.Duration(rand.Intn(interval)))
 	}
 	for i := 0; i < stopNum; i++ {
-		//nanoTime := time.Now().UnixNano()
+		nanoTime := time.Now().UnixNano()
 		//print(nanoTime)
 		for j := 0; j < len(chans); j++ {
-			chans[j] <- int64(time.Now().UnixNano())
+			chans[j] <- int64(nanoTime)
 			//print(j)
 		}
 		if interval > 0 {
@@ -263,7 +263,7 @@ func handleMulticast(chanItem <-chan int64) {
 	err = p.SetMulticastInterface(en0)
 	CheckError("Set Multicast Interface Error", err)
 
-	currentTime := time.Now().UnixNano()
+	//currentTime := time.Now().UnixNano()
 
 	wg.Done()
 	for i := 0; i < stopNum*pnum; i++ {
@@ -273,14 +273,14 @@ func handleMulticast(chanItem <-chan int64) {
 		}
 		binary.PutVarint(b, int64(i))
 		currentTime = time.Now().UnixNano()
-		binary.PutVarint(b[8:], currentTime)
+		binary.PutVarint(b[8:], send_time)
 		//The application can also send both unicast and multicast packets.
 		_, err = p.WriteTo(b, nil, dst)
 		CheckError("Write To multicast Error", err)
 	}
 	time.Sleep(time.Millisecond * 100)
 	binary.PutVarint(b, int64(-1))
-	binary.PutVarint(b[8:], send_time)
+	//binary.PutVarint(b[8:], send_time)
 	_, err = p.WriteTo(b, nil, dst)
 	CheckError("Write To multicast Error", err)
 }
