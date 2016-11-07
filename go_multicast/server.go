@@ -16,7 +16,7 @@ import (
 //import "strconv"
 
 const (
-	BUFSIZE       = 2048
+	BUFSIZE       = 10000
 	INTERVAL_SIZE = 10000
 )
 

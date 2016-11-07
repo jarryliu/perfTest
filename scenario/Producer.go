@@ -65,7 +65,7 @@ func handleProd() {
 		//nanoTime := time.Now().UnixNano()
 		//print(nanoTime)
 		for j := 0; j < len(chans); j++ {
-			chans[j] <- int64(i)
+			chans[j] <- int64(time.Now().UnixNano())
 			//print(j)
 		}
 		if interval > 0 {
@@ -176,14 +176,14 @@ func handleTCP(id int, c net.Conn, chanItem <-chan int64) {
 	sendBuf := make([]byte, msglen)
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	for i := 0; i < stopNum*pnum; i++ {
-		_, more := <-chanItem
+		send_time, more := <-chanItem
 		if !more {
 			break
 		}
 		//print(i)
 		//print("get item\n")
 		binary.PutVarint(sendBuf, int64(i))
-		binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
+		binary.PutVarint(sendBuf[8:], send_time)
 		n, err := c.Write(sendBuf)
 		if err != nil || n != msglen {
 			fmt.Println("Write Error:", err)
@@ -206,12 +206,12 @@ func handleUDP(addr string, chanItem <-chan int64) {
 	sendBuf := make([]byte, msglen)
 	//time.Sleep(time.Microsecond * time.Duration(interval*rand.Intn(1000)))
 	for i := 0; i < stopNum*pnum; i++ {
-		_, more := <-chanItem
+		send_time, more := <-chanItem
 		if !more {
 			break
 		}
 		binary.PutVarint(sendBuf, int64(i))
-		binary.PutVarint(sendBuf[8:], time.Now().UnixNano())
+		binary.PutVarint(sendBuf[8:], send_time)
 		//n, err := c.Write(sendBuf)
 		n, err := c.Write(sendBuf)
 		if err != nil || n != msglen {
@@ -267,7 +267,7 @@ func handleMulticast(chanItem <-chan int64) {
 
 	wg.Done()
 	for i := 0; i < stopNum*pnum; i++ {
-		_, more := <-chanItem
+		send_time, more := <-chanItem
 		if !more {
 			break
 		}
@@ -280,7 +280,7 @@ func handleMulticast(chanItem <-chan int64) {
 	}
 	time.Sleep(time.Millisecond * 100)
 	binary.PutVarint(b, int64(-1))
-	binary.PutVarint(b[8:], time.Now().UnixNano())
+	binary.PutVarint(b[8:], send_time)
 	_, err = p.WriteTo(b, nil, dst)
 	CheckError("Write To multicast Error", err)
 }
