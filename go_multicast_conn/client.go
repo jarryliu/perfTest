@@ -5,11 +5,10 @@ import (
 	"encoding/binary"
 	"flag"
 	"fmt"
-	"net"
 	"os"
 	"time"
 
-	"golang.org/x/net/ipv4"
+	"./transport"
 )
 
 const (
@@ -29,6 +28,14 @@ var roundFile string
 var pktLost int
 var maddr string
 var intf string // name of interface
+
+const defaultBufferSize = 1024
+
+func CheckError(errString string, err error) {
+	if err != nil {
+		fmt.Println(errString+": ", err)
+	}
+}
 
 /* A Simple function to verify error */
 func CheckErrorExit(errString string, err error) {
@@ -68,36 +75,6 @@ func main() {
 	flag.StringVar(&intf, "I", "em1", "Name of the interface for multicast")
 	flag.Parse()
 
-	en0, err := net.InterfaceByName(intf)
-	CheckErrorExit("Interface By Name Error", err)
-
-	//en1, err := net.InterfaceByName("em2")
-	//CheckErrorExit("Interface By Name Error", err)
-
-	group := net.ParseIP(maddr)
-
-	//an application listens to an appropriate address with an appropriate service port.
-	c, err := net.ListenPacket("udp4", ":"+port)
-	CheckErrorExit("Listen Packet Error", err)
-	defer c.Close()
-	// join group
-	p := ipv4.NewPacketConn(c)
-	err = p.JoinGroup(en0, &net.UDPAddr{IP: group})
-	CheckErrorExit("Join Group Error", err)
-
-	//err = p.JoinGroup(en1, &net.UDPAddr{IP: group})
-	//CheckErrorExit("Join Group Error", err)
-
-	// if the application need a dest address in the packet
-	err = p.SetControlMessage(ipv4.FlagDst, true)
-	CheckErrorExit("Set Control Message Error", err)
-
-	// make a buffer
-	b := make([]byte, msglen)
-
-	p.SetTOS(0x0)
-	p.SetTTL(16)
-
 	startTime := time.Now().UnixNano()
 	//lostPkt := 0
 	rcvPkt := 0
@@ -111,13 +88,15 @@ func main() {
 	latencyNum := 0
 	currentTime := time.Now().UnixNano()
 
+	conn, err := transport.NewMTCConn(intf, maddr, port)
+	CheckErrorExit("New MTCConn Fail", err)
+	r := bufio.NewReaderSize(conn, defaultBufferSize)
+	//w := bufio.NewWriterSize(conn, defaultBufferSize)
+	b := make([]byte, 1000)
 	for i := 1; i <= stopNum; i++ {
-		_, cm, _, err := p.ReadFrom(b)
-		CheckErrorExit("ReadFrom socket error", err)
-		currentTime = time.Now().UnixNano()
-		if !cm.Dst.IsMulticast() || !cm.Dst.Equal(group) {
-			continue
-		}
+		_, err := r.Read(b)
+		//if n != 1000
+		CheckError("Read Bufio", err)
 		sentNum, _ := binary.Varint(b)
 		serverSentTime, _ := binary.Varint(b[8:])
 
@@ -145,6 +124,7 @@ func main() {
 		// }
 	}
 	//wg.Wait()
+	conn.Close()
 	endTime := time.Now().UnixNano()
 	fmt.Println("END Client Program, ", stopNum-rcvPkt, " packets lost")
 	fmt.Println((endTime-startTime)/1000/1000, "ms passed")

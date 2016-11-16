@@ -38,3 +38,7 @@ scenario/Consumer
 go_multicast/client
 
 go_multicast/server
+
+go_multicast_conn/client
+
+go_multicast_conn/server
